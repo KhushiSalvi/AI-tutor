@@ -1,0 +1,20 @@
+﻿how does a MOSFET work in saturation region
+why does drain current stop increasing at large Vds
+what is threshold voltage of a MOSFET
+body effect
+channel length modulation
+why does my MOSFET current depend on Vds even in saturation
+triode region current equation
+transconductance of a MOSFET
+what is overdrive voltage
+small signal model of MOSFET
+output resistance of a MOSFET
+what is pinch-off
+why does threshold voltage change with source-body voltage
+how do I calculate gm from ID and Vov
+difference between NMOS and PMOS
+how does a MOSFET turn on
+what is the square law of a MOSFET
+what happens when Vgs is below threshold
+what is the channel in a MOSFET
+how is the MOSFET small signal output resistance related to lambda

@@ -1,0 +1,51 @@
+Scene 1/3: recording narration…
+Scene 2/3: recording narration…
+Scene 3/3: recording narration…
+narration done after 15s (edge-tts)
+Starting the animation engine…
+Traceback (most recent call last):
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\core\video\worker.py", line 30, in <module>
+    main(sys.argv[1])
+    ~~~~^^^^^^^^^^^^^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\core\video\worker.py", line 23, in main
+    final, total = build_video(plan["scenes"], VIDEO_DIR, job_id, progress=progress)
+                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\core\video\animate.py", line 156, in build_video
+    render_scene(page, render_scene_html(sc, i, n), dur, clip, wav, work, f"Scene {i}/{n}", progress)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\core\video\animate.py", line 118, in render_scene
+    proc.stdin.write(page.screenshot(type="jpeg", quality=JPEG_QUALITY))
+                     ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\.venv\Lib\site-packages\playwright\sync_api\_generated.py", line 10909, in screenshot
+    self._sync(
+    ~~~~~~~~~~^
+        self._impl_obj.screenshot(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<13 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\.venv\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ~~~~~~~~~~~^^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\.venv\Lib\site-packages\playwright\_impl\_page.py", line 830, in screenshot
+    encoded_binary = await self._channel.send(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+        "screenshot", self._timeout_settings.timeout, params
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\rohan\OneDrive\Desktop\AI_TUTOR_EE\ee-tutor\.venv\Lib\site-packages\playwright\_impl\_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.screenshot: Timeout 30000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+

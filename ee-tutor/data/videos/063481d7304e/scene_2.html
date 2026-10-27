@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; background: #181818; overflow: hidden; }
+  body { font-family: 'DejaVu Sans', Arial, sans-serif; color: #ececec; }
+  .pad { padding: 70px 90px; height: 100%; position: relative; }
+  .idx { position: absolute; top: 36px; left: 90px; color: #8a8a8a; font-size: 18px; }
+  .cite { position: absolute; bottom: 40px; left: 90px; color: #8a8a8a; font-size: 16px; }
+  h1 { font-size: 46px; font-weight: 700; margin-bottom: 36px; }
+  .anim { animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-out; }
+
+
+    h1.anim { animation-name: rise; animation-duration: 0.6s; }
+    .box { margin-top: 60px; background: #0d0d0d; border-radius: 14px; padding: 36px 44px;
+           font-size: 34px; color: #7aa2f7; min-height: 70px; }
+    .tok { display: inline-block; opacity: 0; transform: scale(0.6); }
+    .where { font-size: 20px; color: #b4b4b4; opacity: 0; margin-top: 20px; }
+    @keyframes rise { 0% { opacity:0; transform: translateY(18px);} 100% { opacity:1; transform: translateY(0);} }
+    @keyframes pop   { 0% { opacity:0; transform: scale(0.6);} 100% { opacity:1; transform: scale(1);} }
+    
+</style></head><body>
+<div class="pad">
+  <div class="idx">2/3</div>
+  <h1 class="anim" data-start="0">Instruction Code Structure</h1><div class="box"><span class="anim tok" data-start="1.2" style="animation-name: pop; animation-duration: 0.35s;">16&nbsp;</span>
+<span class="anim tok" data-start="1.5499999999999998" style="animation-name: pop; animation-duration: 0.35s;">bits&nbsp;</span>
+<span class="anim tok" data-start="1.9" style="animation-name: pop; animation-duration: 0.35s;">=&nbsp;</span>
+<span class="anim tok" data-start="2.25" style="animation-name: pop; animation-duration: 0.35s;">4&nbsp;</span>
+<span class="anim tok" data-start="2.5999999999999996" style="animation-name: pop; animation-duration: 0.35s;">bits&nbsp;</span>
+<span class="anim tok" data-start="2.95" style="animation-name: pop; animation-duration: 0.35s;">(Opcode)&nbsp;</span>
+<span class="anim tok" data-start="3.3" style="animation-name: pop; animation-duration: 0.35s;">+&nbsp;</span>
+<span class="anim tok" data-start="3.6499999999999995" style="animation-name: pop; animation-duration: 0.35s;">12&nbsp;</span>
+<span class="anim tok" data-start="4.0" style="animation-name: pop; animation-duration: 0.35s;">bits&nbsp;</span>
+<span class="anim tok" data-start="4.35" style="animation-name: pop; animation-duration: 0.35s;">(Address)&nbsp;</span></div><div class="where anim" data-start="5.1000000000000005" style="animation-name: rise; animation-duration: 0.6s;">16-bit word split into function control and memory location</div>
+  <div class="cite">source_3 p.125</div>
+</div>
+</body></html>

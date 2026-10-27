@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; background: #181818; overflow: hidden; }
+  body { font-family: 'DejaVu Sans', Arial, sans-serif; color: #ececec; }
+  .pad { padding: 70px 90px; height: 100%; position: relative; }
+  .idx { position: absolute; top: 36px; left: 90px; color: #8a8a8a; font-size: 18px; }
+  .cite { position: absolute; bottom: 40px; left: 90px; color: #8a8a8a; font-size: 16px; }
+  h1 { font-size: 46px; font-weight: 700; margin-bottom: 36px; }
+  .anim { animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-out; }
+
+
+    h1.anim { animation-name: rise; animation-duration: 0.6s; }
+    .box { margin-top: 60px; background: #0d0d0d; border-radius: 14px; padding: 36px 44px;
+           font-size: 34px; color: #7aa2f7; min-height: 70px; }
+    .tok { display: inline-block; opacity: 0; transform: scale(0.6); }
+    .where { font-size: 20px; color: #b4b4b4; opacity: 0; margin-top: 20px; }
+    @keyframes rise { 0% { opacity:0; transform: translateY(18px);} 100% { opacity:1; transform: translateY(0);} }
+    @keyframes pop   { 0% { opacity:0; transform: scale(0.6);} 100% { opacity:1; transform: scale(1);} }
+    
+</style></head><body>
+<div class="pad">
+  <div class="idx">2/3</div>
+  <h1 class="anim" data-start="0">The Mathematical Model</h1><div class="box"><span class="anim tok" data-start="1.2" style="animation-name: pop; animation-duration: 0.35s;">ID&nbsp;</span>
+<span class="anim tok" data-start="1.5499999999999998" style="animation-name: pop; animation-duration: 0.35s;">=&nbsp;</span>
+<span class="anim tok" data-start="1.9" style="animation-name: pop; animation-duration: 0.35s;">1/2&nbsp;</span>
+<span class="anim tok" data-start="2.25" style="animation-name: pop; animation-duration: 0.35s;">*&nbsp;</span>
+<span class="anim tok" data-start="2.5999999999999996" style="animation-name: pop; animation-duration: 0.35s;">mu_n&nbsp;</span>
+<span class="anim tok" data-start="2.95" style="animation-name: pop; animation-duration: 0.35s;">*&nbsp;</span>
+<span class="anim tok" data-start="3.3" style="animation-name: pop; animation-duration: 0.35s;">Cox&nbsp;</span>
+<span class="anim tok" data-start="3.6499999999999995" style="animation-name: pop; animation-duration: 0.35s;">*&nbsp;</span>
+<span class="anim tok" data-start="4.0" style="animation-name: pop; animation-duration: 0.35s;">(W/L)&nbsp;</span>
+<span class="anim tok" data-start="4.35" style="animation-name: pop; animation-duration: 0.35s;">*&nbsp;</span>
+<span class="anim tok" data-start="4.7" style="animation-name: pop; animation-duration: 0.35s;">(VGS&nbsp;</span>
+<span class="anim tok" data-start="5.05" style="animation-name: pop; animation-duration: 0.35s;">-&nbsp;</span>
+<span class="anim tok" data-start="5.3999999999999995" style="animation-name: pop; animation-duration: 0.35s;">VTH)^2&nbsp;</span>
+<span class="anim tok" data-start="5.75" style="animation-name: pop; animation-duration: 0.35s;">*&nbsp;</span>
+<span class="anim tok" data-start="6.1" style="animation-name: pop; animation-duration: 0.35s;">(1&nbsp;</span>
+<span class="anim tok" data-start="6.45" style="animation-name: pop; animation-duration: 0.35s;">+&nbsp;</span>
+<span class="anim tok" data-start="6.8" style="animation-name: pop; animation-duration: 0.35s;">lambda&nbsp;</span>
+<span class="anim tok" data-start="7.1499999999999995" style="animation-name: pop; animation-duration: 0.35s;">*&nbsp;</span>
+<span class="anim tok" data-start="7.5" style="animation-name: pop; animation-duration: 0.35s;">VDS)&nbsp;</span></div><div class="where anim" data-start="8.25" style="animation-name: rise; animation-duration: 0.6s;">ID is drain current; lambda is the channel-length modulation coefficient; VDS is drain-source voltage.</div>
+  <div class="cite">source_1 p.23</div>
+</div>
+</body></html>

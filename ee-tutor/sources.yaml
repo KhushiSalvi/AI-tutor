@@ -1,0 +1,52 @@
+- id: nptel_circuits_iitm
+  type: youtube_playlist
+  url: PASTE_PLAYLIST_URL
+  license: check course page
+  topics:
+  - thevenin
+  - rc_transient
+  - phasors
+  tier: A
+- id: kuphaldt_circuits
+  type: pdf
+  path: data/raw/kuphaldt_vol1.pdf
+  license: Creative Commons (see book appendix)
+  topics:
+  - thevenin
+  - rc_transient
+  - phasors
+  tier: A
+- id: mit_ocw_6002_mosfet
+  type: pdf
+  path: data/raw/mit_6002_mosfet_notes.pdf
+  license: CC BY-NC-SA (verify)
+  topics:
+  - mosfet
+  tier: A
+- id: razavi_analog_cmos
+  type: pdf
+  path: data/raw/razavi_analog_cmos.pdf
+  license: personal copy, local use only
+  topics:
+  - mosfet
+  tier: local
+- id: mano_digital_design
+  type: pdf
+  path: data/raw/mano_digital_design.pdf
+  license: personal copy, local use only
+  topics:
+  - digital_logic
+  - boolean_algebra
+  - combinational_circuits
+  - sequential_circuits
+  - flip_flops
+  - counters
+  - registers
+  tier: local
+- id: computer_systems_architecture
+  type: pdf
+  path: data/raw/computer-systems-Architecture.pdf
+  license: personal copy, local use only (VERIFY before any public/shared use)
+  topics:
+  - general
+  tier: local

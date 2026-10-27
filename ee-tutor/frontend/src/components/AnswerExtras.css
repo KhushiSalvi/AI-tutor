@@ -1,0 +1,73 @@
+/* Colours use the app's own theme variables when they exist, with neutral fallbacks. */
+.ax { display: flex; flex-direction: column; gap: 14px; margin: 18px 0 8px; }
+.ax-card {
+  border: 1.5px solid color-mix(in srgb, currentColor 18%, transparent);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+  border-radius: 16px; padding: 14px 16px;
+}
+.ax-h { margin: 0 0 10px; font-size: 15px; }
+.ax-hint { margin: 10px 0 0; font-size: 12px; opacity: .65; }
+
+/* mind map */
+.mm { display: flex; align-items: flex-start; gap: 0; flex-wrap: wrap; }
+.mm-center {
+  align-self: center; padding: 12px 16px; border-radius: 999px; font-weight: 700; text-align: center;
+  max-width: 180px; background: color-mix(in srgb, var(--accent, #7c6cf0) 30%, transparent);
+  border: 2px solid var(--accent, #7c6cf0);
+}
+.mm-branches { display: flex; flex-direction: column; gap: 10px; margin-left: 28px; padding-left: 22px; position: relative;
+  border-left: 2px solid color-mix(in srgb, var(--accent, #7c6cf0) 55%, transparent); }
+.mm-branch { position: relative; display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap;
+  --c: hsl(var(--h) 65% 55%); }
+.mm-branch::before { content: ""; position: absolute; left: -22px; top: 18px; width: 22px; height: 2px;
+  background: color-mix(in srgb, var(--accent, #7c6cf0) 55%, transparent); }
+.mm-label {
+  font: inherit; font-weight: 700; color: inherit; cursor: pointer; padding: 7px 12px; border-radius: 12px;
+  background: color-mix(in srgb, var(--c) 28%, transparent); border: 2px solid var(--c);
+}
+.mm-caret { margin-right: 6px; opacity: .7; }
+.mm-kids { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-top: 3px; }
+.mm-kid {
+  font: inherit; font-size: 13px; color: inherit; cursor: pointer; padding: 5px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 12%, transparent); border: 1.5px dashed var(--c);
+}
+.mm-kid:hover, .mm-label:hover { filter: brightness(1.12); transform: translateY(-1px); }
+
+/* steps */
+.ax-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ax-steps li { display: flex; gap: 10px; align-items: flex-start; }
+.ax-num { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700;
+  background: var(--accent, #7c6cf0); color: #fff; }
+
+/* example + summary */
+.ax-example p, .ax-summary ul { margin: 0; }
+.ax-summary { border-color: color-mix(in srgb, #2eb872 60%, transparent); background: color-mix(in srgb, #2eb872 10%, transparent); }
+.ax-summary ul { padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+
+/* images */
+.ax-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.ax-img { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ax-img button { padding: 0; border: 0; background: #fff; border-radius: 12px; cursor: zoom-in; overflow: hidden; }
+.ax-img img { width: 100%; height: 140px; object-fit: contain; display: block; }
+.ax-img figcaption { font-size: 11px; display: flex; flex-direction: column; gap: 2px; opacity: .8; }
+.ax-img figcaption a { color: inherit; font-weight: 600; text-decoration: underline; overflow-wrap: anywhere; }
+.ax-lightbox { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.8); display: grid; place-items: center; cursor: zoom-out; padding: 24px; }
+.ax-lightbox img { max-width: 100%; max-height: 100%; background: #fff; border-radius: 12px; }
+
+/* follow-up chips */
+.ax-follow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ax-follow span { font-size: 12px; opacity: .65; }
+.ax-follow button {
+  font: inherit; font-size: 13px; color: inherit; cursor: pointer; padding: 6px 12px; border-radius: 999px; text-align: left;
+  background: transparent; border: 1.5px solid var(--accent, #7c6cf0);
+}
+.ax-follow button:hover { background: color-mix(in srgb, var(--accent, #7c6cf0) 20%, transparent); }
+@media (max-width: 600px) { .mm-branches { margin-left: 14px; padding-left: 14px; } .mm-branch::before { left: -14px; width: 14px; } }
+
+/* flowchart */
+.ax-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ax-copy { font: inherit; font-size: 11px; color: inherit; opacity: .7; cursor: pointer; padding: 3px 9px; border-radius: 999px;
+  background: transparent; border: 1px solid color-mix(in srgb, currentColor 35%, transparent); }
+.ax-copy:hover { opacity: 1; }
+.ax-flow { overflow-x: auto; display: flex; justify-content: center; }
+.ax-flow svg { max-width: 100%; height: auto; }

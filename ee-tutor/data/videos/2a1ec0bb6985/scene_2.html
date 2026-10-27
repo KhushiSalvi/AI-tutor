@@ -1,0 +1,51 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; background: #181818; overflow: hidden; }
+  body { font-family: 'DejaVu Sans', Arial, sans-serif; color: #ececec; }
+  .pad { padding: 70px 90px; height: 100%; position: relative; }
+  .idx { position: absolute; top: 36px; left: 90px; color: #8a8a8a; font-size: 18px; }
+  .cite { position: absolute; bottom: 40px; left: 90px; color: #8a8a8a; font-size: 16px; }
+  h1 { font-size: 46px; font-weight: 700; margin-bottom: 36px; }
+  .anim { animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-out; }
+
+
+    h1.anim { animation-name: rise; animation-duration: 0.6s; }
+    .stage { position: relative; margin-top: 110px; height: 220px; }
+    .line { position: absolute; top: 18px; left: 0; width: 1000.0px; height: 4px; background: #3a3a3a; }
+    .node { position: absolute; top: 0; width: 140px; text-align: center; opacity: 0; transform: translateY(14px); }
+    .node .dot { width: 36px; height: 36px; border-radius: 50%; background: #2f2f2f; border: 3px solid #7aa2f7;
+                  margin: 0 auto 14px; }
+    .node .lbl { font-size: 20px; }
+    .particle { position: absolute; top: 9px; left: 9px; width: 18px; height: 18px; border-radius: 50%;
+                 background: #ffb454; box-shadow: 0 0 16px 4px rgba(255,180,84,0.6);
+                 animation-name: travel; animation-timing-function: linear; opacity: 0; }
+    @keyframes rise   { 0% { opacity:0; transform: translateY(18px);} 100% { opacity:1; transform: translateY(0);} }
+    @keyframes nodein { 0% { opacity:0; transform: translateY(14px);} 100% { opacity:1; transform: translateY(0);} }
+    @keyframes travel { 0%   { opacity: 0; left: 9px; }
+                          1%   { opacity: 1; left: 9px; }
+                          100% { opacity: 1; left: 991.0px; } }
+    
+</style></head><body>
+<div class="pad">
+  <div class="idx">2/3</div>
+  <h1 class="anim" data-start="0">Signal Conversion</h1>
+      <div class="stage">
+        <div class="line"></div>
+        <div class="node anim" data-start="0.3" style="left:0.0px; animation-name: nodein; animation-duration: 0.45s;">
+              <div class="dot"></div><div class="lbl">Digital Signals</div>
+            </div>
+<div class="node anim" data-start="0.55" style="left:333.3333333333333px; animation-name: nodein; animation-duration: 0.45s;">
+              <div class="dot"></div><div class="lbl">Modem Conversion</div>
+            </div>
+<div class="node anim" data-start="0.8" style="left:666.6666666666666px; animation-name: nodein; animation-duration: 0.45s;">
+              <div class="dot"></div><div class="lbl">Audio Tones</div>
+            </div>
+<div class="node anim" data-start="1.05" style="left:1000.0px; animation-name: nodein; animation-duration: 0.45s;">
+              <div class="dot"></div><div class="lbl">Telephone Lines</div>
+            </div>
+        <div class="particle anim" data-start="1.65" style="animation-duration: 3.3000000000000003s;"></div>
+      </div>
+  <div class="cite">source_2 p.430</div>
+</div>
+</body></html>

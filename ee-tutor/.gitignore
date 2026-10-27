@@ -1,0 +1,32 @@
+@"
+.venv/
+data/raw/
+data/processed/
+eval/gate_pyq/
+.env
+"@ | Set-Content .gitignoredata/index/
+data/history.json
+data/chats.json
+frontend/node_modules/
+frontend/dist/
+frontend/node_modules/
+frontend/dist/
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Python virtual environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Generated databases and media
+data/index/
+data/videos/
+data/nptel_emb/
+
+# Logs
+*.log
