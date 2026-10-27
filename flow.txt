@@ -1,0 +1,19 @@
+- id: nptel_circuits_iitm
+  type: youtube_playlist
+  url: <playlist url>
+  license: CC BY-SA (verify)
+  topics: [network_theory, ac_analysis]
+  tier: A
+  transcript_method: official_then_whisper
+
+- id: kuphaldt_lessons_circuits
+  type: pdf
+  license: open (verify version)
+  topics: [dc_circuits, ac_circuits, semiconductors]
+  tier: A
+
+- id: gate_ee_pyq_2015_2024
+  type: question_bank
+  license: restricted
+  use: eval_only
+  tier: local

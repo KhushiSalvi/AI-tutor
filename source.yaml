@@ -1,0 +1,20 @@
+- id: nptel_circuits_iitm
+  type: youtube_playlist
+  url: <paste playlist url>
+  license: <check course page>
+  topics: [thevenin, rc_transient, phasors]
+  tier: A
+
+- id: kuphaldt_circuits
+  type: pdf
+  path: data/raw/kuphaldt_vol1.pdf
+  license: <check license on the book's page>
+  topics: [thevenin, rc_transient, phasors]
+  tier: A
+
+- id: mit_ocw_6002_mosfet
+  type: pdf
+  path: data/raw/mit_6002_mosfet_notes.pdf
+  license: CC BY-NC-SA (verify)
+  topics: [mosfet]
+  tier: A
