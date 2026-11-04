@@ -8,8 +8,15 @@ import re
 import requests
 
 
+def strip_citations(text):
+    if not text:
+        return ""
+    text = re.sub(r"\s*\[(?:\s*p\.?\s*\d+|\d+(?:\s*,\s*\d+)*|W\d+)\s*\]", "", str(text))
+    return re.sub(r" +", " ", text).strip()
+
+
 def _s(x, n):
-    return str(x).strip()[:n] if x is not None else ""
+    return strip_citations(x)[:n] if x is not None else ""
 
 
 def _list(x):
