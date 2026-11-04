@@ -51,6 +51,46 @@ function Figure({ res, no }) {
   );
 }
 
+function renderInline(str) {
+  if (!str) return "";
+  const parts = String(str).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+      return <code key={i} className="inline-code">{part.slice(1, -1)}</code>;
+    }
+    return part;
+  });
+}
+
+function FormattedText({ text, className = "" }) {
+  if (!text) return null;
+  const blocks = String(text)
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+  return (
+    <div className={className}>
+      {blocks.map((block, i) => {
+        const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+        const isList = lines.length > 0 && lines.every((l) => /^[-*•]\s+/.test(l));
+        if (isList) {
+          return (
+            <ul key={i}>
+              {lines.map((l, j) => (
+                <li key={j}>{renderInline(l.replace(/^[-*•]\s+/, ""))}</li>
+              ))}
+            </ul>
+          );
+        }
+        return <p key={i}>{renderInline(block)}</p>;
+      })}
+    </div>
+  );
+}
+
 function Body({ res }) {
   if (res.mode === "error") return <p className="err">{res.error}</p>;
   if (res.mode === "card") {
@@ -64,13 +104,20 @@ function Body({ res }) {
         </p>
       );
     return (
-      <>
-        {res.title && <h3>{res.title}</h3>}
-        <p className="lead">{res.answer}</p>
+      <div className="card-body">
+        {res.title && <h3>{renderInline(res.title)}</h3>}
+        {res.answer && <p className="lead">{renderInline(res.answer)}</p>}
         {res.explanation && (
           <>
             <h4>Explanation</h4>
-            <p>{res.explanation}</p>
+            <FormattedText text={res.explanation} />
+          </>
+        )}
+        {res.formula && (
+          <>
+            <h4>Key formula</h4>
+            <pre className="code">{res.formula}</pre>
+            {res.formula_where && <p className="cap">{renderInline(res.formula_where)}</p>}
           </>
         )}
         {res.key_points?.length > 0 && (
@@ -78,24 +125,20 @@ function Body({ res }) {
             <h4>Key points</h4>
             <ul>
               {res.key_points.map((k, i) => (
-                <li key={i}>{k}</li>
+                <li key={i}>{renderInline(k)}</li>
               ))}
             </ul>
           </>
         )}
-        {res.formula && (
-          <>
-            <h4>Key formula</h4>
-            <pre className="code">{res.formula}</pre>
-            {res.formula_where && <p className="cap">{res.formula_where}</p>}
-            <p className="cap">Check this formula against the cited page. Book text can have broken equations.</p>
-          </>
-        )}
-      </>
+      </div>
     );
   }
   const text = res.reply || res.answer || res.explanation;
-  return <p className="reply">{text || "No answer came back. Try rephrasing, or press regenerate."}</p>;
+  return (
+    <div className="reply">
+      <FormattedText text={text || "No answer came back. Try rephrasing, or press regenerate."} />
+    </div>
+  );
 }
 
 function Sources({ res }) {

@@ -86,115 +86,94 @@ def build_system(level):
     style = _STYLE.get(level, _STYLE["beginner"])
     return f"""You are EE Tutor: an exceptional, warm, and highly knowledgeable electrical and electronics \
 engineering teacher (circuits, analog and digital electronics, computer architecture, signals and systems, \
-control, and power). Your role is to explain topics very deeply and in a remarkably efficient manner—giving \
-deep physical insight and mathematical clarity in as few words as needed. Your students are university students, \
-many preparing for semester exams, GATE, or ESE.
+control, and power). Your role is to explain topics deeply, intuitively, and in a comfortable, beautifully \
+structured format—delivering crystal-clear understanding with breathing room, zero clutter, and no walls of text.
 
-TEACH IN YOUR OWN EE TUTOR VOICE (NEVER COPY-PASTE CHUNKS)
-- Synthesize and teach like an expert teacher in your own engaging, clear voice. DO NOT copy-paste raw, stiff sentences \
-or verbatim chunks from the sources into the final answer. Digest the concept and explain the intuition, mechanism, and \
-why it matters, as a professor speaking directly to a student.
-- NO BRACKETED CITATIONS IN TEXT: NEVER output citation numbers or brackets like [1], [2], [4], [p.12] anywhere inside \
-your answer, explanation, key points, summary, or reply text. The text must read clean, fluent, and completely free of \
-bracketed numbers. Source tracking is handled solely via the "cited" JSON array.
+READABILITY, STRUCTURE & BREATHING ROOM (VERY IMPORTANT)
+- Never output an unbroken wall of text. Students need comfortable spacing to absorb technical concepts.
+- Short Paragraphs: Keep every paragraph strictly 2 to 3 sentences maximum.
+- Paragraph Spacing: Separate distinct thoughts, intuitive analogies, and mechanisms with clean double line breaks (\n\n).
+- Key Terms in Bold: Use **bold** on the first mention of critical variables, parameters (e.g. **transconductance (gm)**, **drain current (ID)**), or design trade-offs.
+- NO BRACKETED CITATIONS IN TEXT: NEVER write [1], [2], [4], [p.12] in any text field. Keep all sentences fluent and clean. Source tracking is solely in the "cited" JSON array.
+
+WHEN TO USE "card" VS "chat":
+- Mode "card" (Structured Concept Card):
+  Use mode "card" whenever the student asks to explain, define, or understand a concept, circuit, device, equation, or mechanism \
+(e.g., "explain what is transconductance", "what is RISC", "tell me about Nyquist plot", "how does a MOSFET work"), \
+regardless of whether this is the first message or a subsequent message in the conversation!
+  * title: clean topic title, max 8 words (e.g. "Transconductance (gm) in MOSFETs").
+  * answer: 1-2 sentence core definition / intuition (the big picture).
+  * explanation: 2 to 3 short paragraphs (strictly 2-3 sentences each, separated by \n\n).
+    - Para 1: Intuition & physical analogy (what it is and how to visualize it).
+    - Para 2: Circuit mechanism & operation (how input voltage modulates current/signals).
+    - Para 3: Practical engineering significance (why it matters in gain, speed, or amplifiers), ending with "In short, ...".
+  * formula: the single most important mathematical equation as plain ASCII or clean LaTeX notation (e.g. "gm = d(ID)/d(VGS) = mu * Cox * (W/L) * (VGS - VTH)").
+  * formula_where: clear definition of each variable with units (e.g. "gm in S (Siemens) or A/V, ID = drain current, VGS = gate-to-source voltage").
+  * key_points: 3 to 4 punchy bullet points, each starting with a **Bold Lead Phrase** (under 15 words each).
+  * mindmap, flowchart, steps, example, summary: fill these to make the answer interactive!
+- Mode "chat" (Conversational Follow-up):
+  Use mode "chat" ONLY for short conversational follow-ups, doubts, or quick clarifications on a previously explained topic \
+(e.g., "why does it depend on W/L?", "can gm ever be negative?", "what if temperature increases?").
+  * reply: 2 to 3 short, well-spaced paragraphs (2-3 sentences each) directly resolving the doubt.
 
 ADAPTIVE PACING (LEARN BY USER'S PACE)
-- Continuously observe and adapt to the student's pace, grasp, and tone from the conversation history:
-  * Slower / Struggling Pace: If the student asks basic questions, shows hesitation, repeats doubts, or struggles \
-with core concepts, slow down. Break explanations into digestible, step-by-step intuition, define every technical \
-term, and provide clear intuitive physical analogies before diving into technical details.
-  * Fast / Advanced Pace: If the student demonstrates rapid grasp, uses technical terminology, or asks sharp \
-analytical/GATE-level questions, accelerate the pace. Provide concise, high-density, mathematically precise \
-answers without elementary recaps or unnecessary hand-holding.
-  * Dynamically calibrate your explanation depth and pacing to match the student's current learning speed.
+- Slower / Struggling Pace: If the student asks basic questions, shows hesitation, or says "why/how", slow down. Break explanations into bite-sized intuition, define every technical term, and use clear physical analogies.
+- Fast / Advanced Pace: If the student asks sharp analytical/GATE-level questions, accelerate. Provide concise, high-density, mathematically precise explanations without unnecessary handholding.
 
 SOURCE DISCIPLINE & CONTENT ENRICHMENT (BOOKS AS FOUNDATION + WEB FINE-TUNING)
-- Primary Foundation (Textbooks): Follow and prioritize the numbered SOURCES provided in the message as your \
-primary ground truth for core definitions, physical mechanisms, equations, and exact notations.
-- Fine-Tuning & Adding Reliable Content: You are anchored in the book, but you can also use web search and \
-verified engineering knowledge for fine-tuning the answer or adding more reliable, practical, and related content \
-(such as real-world industry context, modern intuition, or bridging small gaps not fully elaborated in the excerpt).
+- Primary Foundation (Textbooks): Follow and prioritize the numbered SOURCES provided in the message as your primary ground truth for core definitions, physical mechanisms, equations, and exact notations.
+- Fine-Tuning & Adding Reliable Content: You are anchored in the book, but you can also use web search and verified engineering knowledge for fine-tuning the answer or adding more reliable, practical, and related content.
 - Copy formulas and definitions in standard EE conventions. Never rebuild an equation from memory if the sources provide it.
-- If two sources disagree or show conflicting conventions, explain the distinction clearly.
 - If the sources cover the main point, answer what they cover, fine-tune/enrich where helpful, and set "found" to true.
-- If the sources do not cover the question's main subject at all, set "found" to false. Answer accurately using \
-reliable web/engineering knowledge, while noting honestly that this is supplemented beyond their uploaded textbook.
-
-HOW YOU TEACH
-- Deep yet ultra-efficient: start with core intuition (what it is, how it physically works, why it matters). \
-One idea at a time. No filler, no redundant preamble, no restating the question. Short doubts get short answers.
-- Plain words and short sentences. Define jargon when it first appears. Always include units with numbers.
-- Analogies: You may add at most one short everyday analogy (beginner level), introduced with "Think of it like", \
-strictly to build physical intuition. Never use an analogy to introduce an inaccurate technical claim.
-- Encouraging & constructive: If the student makes a misconception: "Good try, here is the catch" and present \
-the correct physical insight.
-- Student Language: Reply in the student's language. If they write in Hinglish, reply in simple natural Hinglish \
-while keeping technical engineering terms in English. No emojis unless the student uses them.
-- Exam Relevance: If the student mentions an exam (GATE, ESE, semester), include one sharp "Exam tip:". If the \
-topic is broad or visual, end the explanation with: Tip: tap the video icon for an animated walkthrough.
+- If the sources do not cover the question's main subject at all, set "found" to false. Answer accurately using reliable web/engineering knowledge.
 
 {style}
 
-TWO REPLY SHAPES
-1. New topic question, mode "card":
-   - answer: the direct answer in 1 or 2 sentences in your own clear words, without any bracketed citation numbers.
-   - explanation: 3 to 5 short sentences in logical order, explaining deeply and clearly. The LAST sentence is \
-the conclusion, starting with "In short,". Do not write bracketed numbers.
-   - key_points: 3 to 5 things to remember, each under 15 words. If applicable, start one with "Watch out:".
-   - formula: the single most important equation from the sources/standard EE notation, or "".
-   - formula_where: one line defining the symbols, from the sources, or "".
-   - mindmap: (optional) {{"center": "topic, max 4 words", "branches": [{{"label": "max 4 words", "children": ["max 6 words"]}}]}} \
-with 3 to 5 branches, or null if not applicable.
-   - flowchart: (optional) Mermaid structure {{"direction": "TD", "nodes": [{{"id": "A", "label": "max 6 words", "shape": "box"}}], "edges": [{{"from": "A", "to": "B", "label": "max 3 words"}}]}} \
-if describing a process or signal flow, else null.
-   - steps: 3 to 6 short ordered strings if describing a procedure, else [].
-   - example: one short worked example or analogy if helpful, else "".
-   - summary: 2 to 4 bullet strings recapping key takeaways, or [].
-   - followups: 3 short, thought-provoking follow-up questions to test or expand understanding.
-2. Follow-up, clarification, doubt or challenge (MUST use mode "chat"):
-   - mode: "chat"
-   - reply: 2 to 6 sentences, direct, engaging, and specifically answering the new question.
-   - ZERO REPETITION: NEVER repeat high-level definitions, overviews, or sentences already given earlier in the conversation.
-   - DIVE INTO THE MECHANISM: Explain the underlying physical cause-and-effect (e.g. at the clock cycle, register, or circuit level) instead of staying at the surface.
-   - ADAPT TO USER PACE:
-     * If the user asks for intuition, says "why", "how does that work", or seems confused: SLOW DOWN. Drop textbook jargon, give a simple real-world analogy or visual mental model, and walk through it step-by-step.
-     * If the user asks a fast, sharp technical question: ACCELERATE. Give the exact engineering trade-off or analytical principle without unnecessary preliminaries.
-   - If the student challenges an earlier statement, re-check against the sources. If they are right, acknowledge and correct it honestly.
-   - If the student repeats a doubt, explain from a completely fresh angle with a brand new analogy.
-
 Return ONLY a JSON object (no markdown fences) with these keys:
-"mode": "card" for a new topic, "chat" for a follow-up, doubt or challenge
+"mode": "card" for a concept/topic explanation, "chat" for a quick follow-up doubt
 "title": (card) short topic name, max 8 words
 "answer": (card) the direct answer, 1 or 2 sentences
-"explanation": (card) 3 to 5 sentences, ending with the "In short," conclusion
-"key_points": (card) list of 3 to 5 short strings
-"formula": (card) key equation as plain ASCII text copied from the sources, or ""
-"formula_where": (card) one line defining symbols, from the sources, or ""
+"explanation": (card) 2 to 3 short paragraphs separated by \n\n, ending with "In short,"
+"key_points": (card) list of 3 to 4 short strings with **Bold Leads**
+"formula": (card) key equation as plain ASCII/LaTeX text, or ""
+"formula_where": (card) one line defining symbols with units, or ""
 "mindmap": (card) mind map object or null
 "flowchart": (card) flowchart object or null
 "steps": (card) procedure steps list or []
 "example": (card) worked example or analogy string, or ""
 "summary": (card) recap bullets list or []
 "followups": (card and chat) 3 follow-up questions list or []
-"reply": (chat) 2 to 6 sentences, direct and natural, with no bracketed numbers
+"reply": (chat) 2 to 3 short paragraphs separated by \n\n, direct and natural
 "figures": up to 2 figure numbers chosen ONLY from candidate list that best illustrate the answer, or []
 "cited": list of the source numbers that support what you wrote (e.g. [1, 2])
 "found": true if the sources answer the main question, false if they do not cover it
 Never invent facts, formulas, figure numbers, page numbers or source numbers."""
 
 
-WEB_SYSTEM = """You are answering a question that the student's textbook sources do NOT cover.
-You are given short snippets from a web search instead. This is a fallback path, separate from the
-book-grounded mode -- here you may use the web snippets and well-established general engineering
-knowledge to give a genuinely useful answer, but:
-1. Stay factual and cautious; do not present uncertain or unverified claims as settled fact.
-2. Keep it concise: 3-6 sentences, at the level implied by the student's message.
-3. Cite the web sources you actually relied on, inline like [W1], [W2].
-Return ONLY a JSON object (no markdown fences):
-"reply": the answer, 3-6 sentences, with inline [W#] citations
-"used": list of the web source numbers you actually relied on
-If even the web snippets do not answer the question, set "reply" to a short honest statement that you
-don't have a good answer, and "used" to []."""
+WEB_SYSTEM = """You are EE Tutor answering a question that the student's textbook sources do NOT cover.
+You are given technical snippets from a web search instead.
+Explain the answer clearly, deeply, and in your natural EE tutor voice:
+1. Stay factual and clear: 3 to 6 sentences, matching the student's level and pace.
+2. DO NOT include bracketed citation numbers (like [1], [W1]) in the text.
+3. Return ONLY a JSON object (no markdown fences):
+"reply": the clean, natural answer
+"used": list of the web source numbers (e.g. [1, 2]) you relied on
+If even the web snippets do not answer the question, set "reply" to an honest statement explaining that and "used": []."""
+
+RELEVANCY_SYSTEM = (
+    "You are an evaluator in an electrical engineering RAG pipeline. "
+    "Check whether the retrieved textbook passages contain relevant technical facts to answer the student's question. "
+    "If the passages are relevant and helpful, return {\"relevant\": true}. "
+    "If the passages are completely unrelated or do not contain information to answer the question, return {\"relevant\": false}. "
+    "Return ONLY a JSON object: {\"relevant\": true} or {\"relevant\": false}."
+)
+
+WEB_REWRITE_SYSTEM = (
+    "The student's question was not covered by the textbook materials. "
+    "Rewrite the question into a high-precision technical search query for Tavily or Google search. "
+    "Target core electrical engineering definitions, mechanisms, component names, or specifications. "
+    "Return only the search query string, max 10 words."
+)
 
 GENERAL_SYSTEM = (
     "You are a friendly tutor. The student asked something outside their textbook and web search "
@@ -297,6 +276,80 @@ def fig_page(sources, no):
     return sources[0]["pdf_page"]
 
 
+def check_relevancy(query, sources):
+    """Agentic Node: LLM Relevancy Check on Vector Database chunks."""
+    if not sources:
+        return False
+    context = "\n---\n".join(s["text"][:350] for s in sources[:3])
+    user_prompt = f"Question: {query}\n\nRetrieved passages:\n{context}"
+    try:
+        raw = generate(RELEVANCY_SYSTEM, user_prompt)
+        d = parse_json(raw)
+        return bool(d.get("relevant", True))
+    except Exception:
+        return True
+
+
+def rewrite_for_web(query, hist=""):
+    """Agentic Node: Query Rewrite for Web Search."""
+    try:
+        user_prompt = f"Earlier conversation:\n{hist or '(none)'}\n\nQuestion: {query}"
+        raw = generate(WEB_REWRITE_SYSTEM, user_prompt)
+        return raw.strip().strip('"').splitlines()[0][:120] or query
+    except Exception:
+        return query
+
+
+def web_search_pipeline(query, level="beginner", first=False):
+    """Agentic Node: Tavily Web Search (with Google Search fallback) -> LLM generation."""
+    # 1. Try Tavily Search first (matches user architecture)
+    results = web_search(query, k=4)
+    if results:
+        snippets = "\n\n".join(f"Source [{i}]: {r['title']}\n{r['snippet']}" for i, r in enumerate(results, 1))
+        user_prompt = f"Student Question: {query}\n\nWeb Search Snippets:\n{snippets}"
+        try:
+            d = parse_json(generate(WEB_SYSTEM, user_prompt))
+            reply = strip_citations(str(d.get("reply", "")))
+            if reply:
+                used = [i for i in d.get("used", []) if isinstance(i, int) and 1 <= i <= len(results)]
+                used_sources = [results[i - 1] for i in used] if used else results[:3]
+                return {
+                    "mode": "chat",
+                    "found": False,
+                    "web_used": True,
+                    "web_sources": used_sources,
+                    "reply": reply,
+                }
+        except Exception:
+            pass
+
+    # 2. Fallback to Gemini Google Search grounding
+    g = grounded_answer(query)
+    if g:
+        return {
+            "mode": "chat",
+            "found": False,
+            "web_used": True,
+            "web_sources": g["sources"],
+            "reply": strip_citations(g["reply"]),
+        }
+
+    # 3. Last resort: general knowledge
+    try:
+        txt = generate(GENERAL_SYSTEM, query).strip()
+        if txt:
+            return {
+                "mode": "chat",
+                "found": False,
+                "web_used": False,
+                "web_sources": [],
+                "reply": "This isn't in your textbook, and web search was unavailable, so here is the general engineering explanation:\n\n" + strip_citations(txt),
+            }
+    except Exception:
+        pass
+    return None
+
+
 def web_fallback(query):
     """For questions outside the textbook. Tries, in order: (1) Gemini + Google Search,
     (2) Tavily snippets if TAVILY_API_KEY is set, (3) plain general knowledge."""
@@ -343,14 +396,24 @@ def respond(msgs, level):
     hist = history_text(prior)
     prev_q = next((m["content"] for m in reversed(prior) if m["role"] == "user"), "")
     search_q = q if first else standalone_query(q, hist, prev_q)
+
+    # STEP 1: RETRIEVE FROM VECTOR DATABASE
     sources = retrieve(search_q, level)
-    base.update(sources=sources, search_q=search_q)
-    if not sources:
-        fb = web_fallback(search_q)
+
+    # STEP 2: AGENTIC LLM RELEVANCY CHECK
+    is_relevant = check_relevancy(search_q, sources) if sources else False
+
+    # STEP 3: IF NOT RELEVANT -> QUERY REWRITE -> TAVILY WEB SEARCH (Agentic Retry)
+    if not is_relevant:
+        web_q = rewrite_for_web(search_q, hist)
+        fb = web_search_pipeline(web_q, level, first)
         if fb:
-            return dict(base, mode="chat", found=False, **fb)
-        return dict(base, reply="I could not find anything relevant in the book for that, "
-                                "and I could not reach the web either. Try rephrasing.")
+            return dict(base, **fb, search_q=search_q)
+        return dict(base, reply="I could not find anything relevant in your textbook sources for that, "
+                                "and web search was unavailable. Try rephrasing your question.")
+
+    # STEP 4: RELEVANT -> ANSWER GENERATION (Book-grounded)
+    base.update(sources=sources, search_q=search_q)
     if not llm_ready():
         return dict(base, found=True, cited=[1],
                     reply="No LLM is configured. Best matching passage: " + sources[0]["text"][:600])
@@ -363,14 +426,11 @@ def respond(msgs, level):
         f"Candidate figures mentioned in the sources: {', '.join(cands) or 'none'}\n\n"
         f"Student's message: {q}\n"
         + (
-            "This is the first message about a topic, so mode must be 'card'.\n"
+            "This is the first message about a topic, so mode MUST be 'card'.\n"
             if first
-            else "This is a FOLLOW-UP question in an ongoing conversation. Mode MUST be 'chat'.\n"
-                 "RULES FOR THIS FOLLOW-UP:\n"
-                 "1. Do NOT repeat definitions or overviews already given in Earlier conversation.\n"
-                 "2. Directly answer the student's specific doubt or 'how/why' question from the first sentence.\n"
-                 "3. Calibrate your pace: if the user asks 'how/why' or seems confused, slow down and explain the inner physical/hardware mechanism simply; if advanced, be concise and technical.\n"
-                 "4. If the source snippets are surface-level, use verified engineering knowledge to explain the actual mechanism thoroughly rather than repeating the same snippet.\n"
+            else "Context: This is an ongoing conversation.\n"
+                 "- If the student is asking to explain, define, or understand a concept, circuit, device, or theory: use mode 'card' to generate a complete, structured topic card with title, answer, short-spaced paragraphs in explanation, formula, and key points.\n"
+                 "- If the student is asking a quick follow-up doubt or challenge on what was already discussed: use mode 'chat' and answer directly in 2-3 short, well-spaced paragraphs without repeating earlier overviews.\n"
         )
     )
     raw = generate(build_system(level), user)
@@ -380,10 +440,15 @@ def respond(msgs, level):
         return dict(base, found=True, cited=[1], reply=raw[:1200])
 
     found = bool(d.get("found", True))
-    mode = "card" if first else "chat"
+    # Intelligent mode detection: if model provided card content (answer + explanation), render structured card!
+    has_card = bool(d.get("answer") and d.get("explanation"))
+    model_mode = str(d.get("mode", "")).lower()
+    is_card = first or (model_mode == "card") or (has_card and not d.get("reply"))
+    mode = "card" if is_card else "chat"
+
     reply = strip_citations(str(d.get("reply", "")))
-    if not reply and mode == "chat":  # model filled card fields instead of reply
-        reply = (str(d.get("answer", "")) + " " + str(d.get("explanation", ""))).strip()
+    if not reply and mode == "chat":
+        reply = (str(d.get("answer", "")) + "\n\n" + str(d.get("explanation", ""))).strip()
     if mode == "card" and found and not (d.get("answer") or d.get("explanation")):
         mode, reply = "chat", reply or "I could not form a clear answer from the sources. Try rephrasing."
     if not reply and mode == "chat":
@@ -424,7 +489,8 @@ def respond(msgs, level):
 
     result.update(clean_extras(d))
     if not found:
-        fb = web_fallback(search_q)
+        web_q = rewrite_for_web(search_q, hist)
+        fb = web_search_pipeline(web_q, level, first) or web_fallback(web_q)
         if fb:
             result.update(mode="chat", **fb)
             result["cited"], result["figures"] = [], []
