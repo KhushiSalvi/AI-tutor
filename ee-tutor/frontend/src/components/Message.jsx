@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp } from "./Icons.jsx";
+import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp, Film } from "./Icons.jsx";
 import AnswerExtras from "./AnswerExtras.jsx";
+import MindMap from "./MindMap.jsx";
+import CalloutBox, { HighlightLegend, renderHighlightedText } from "./Highlights.jsx";
+import FormulaBlock, { Formula } from "./Formula.jsx";
 
 const arr = (x) => (Array.isArray(x) ? x : []);
 function normalize(r) {
@@ -12,6 +15,9 @@ function normalize(r) {
     cited: arr(r.cited),
     figure_pages: r.figure_pages && typeof r.figure_pages === "object" ? r.figure_pages : {},
     web_sources: arr(r.web_sources),
+    source_badges: arr(r.source_badges),
+    highlights: arr(r.highlights),
+    callouts: arr(r.callouts),
   };
 }
 
@@ -22,6 +28,71 @@ function plainText(res) {
       .filter(Boolean)
       .join("\n\n");
   return res.reply || res.answer || "";
+}
+
+function SourceBadges({ res }) {
+  const badges = res.source_badges || [];
+  if (badges.length === 0 && !res.notice) return null;
+
+  const badgeColors = {
+    "From your books": { bg: "rgba(122, 162, 247, 0.15)", color: "#7aa2f7", border: "#7aa2f7" },
+    "From NPTEL": { bg: "rgba(247, 118, 142, 0.15)", color: "#f7768e", border: "#f7768e" },
+    "From the web": { bg: "rgba(224, 175, 104, 0.15)", color: "#e0af68", border: "#e0af68" },
+  };
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", margin: "4px 0 12px 0", alignItems: "center" }}>
+      {badges.map((b) => {
+        const style = badgeColors[b] || { bg: "rgba(255, 255, 255, 0.1)", color: "#c0caf5", border: "#565f89" };
+        return (
+          <span
+            key={b}
+            style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              padding: "2px 8px",
+              borderRadius: "12px",
+              backgroundColor: style.bg,
+              color: style.color,
+              border: `1px solid ${style.border}`,
+            }}
+          >
+            {b}
+          </span>
+        );
+      })}
+      {res.notice && (
+        <span
+          style={{
+            fontSize: "11px",
+            fontStyle: "italic",
+            color: "#e0af68",
+            marginLeft: "4px",
+          }}
+        >
+          ({res.notice})
+        </span>
+      )}
+      {res.nptel_link && (
+        <a
+          href={res.nptel_link}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            fontSize: "11px",
+            color: "#f7768e",
+            textDecoration: "underline",
+            marginLeft: "6px",
+          }}
+        >
+          <Film size={12} /> Watch matching NPTEL clip
+        </a>
+      )}
+    </div>
+  );
 }
 
 function Figure({ res, no }) {
@@ -51,21 +122,31 @@ function Figure({ res, no }) {
   );
 }
 
-function renderInline(str) {
+// Splits text on $...$ and \(...\) math spans plus **bold** and `code`
+const INLINE_SPLIT = /(\$[^$\n]+\$|\\\([^)]+\\\)|\*\*[^*]+\*\*|`[^`]+`)/g;
+
+function renderInline(str, highlights = []) {
   if (!str) return "";
-  const parts = String(str).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  const parts = String(str).split(INLINE_SPLIT);
   return parts.map((part, i) => {
+    // Inline math: $...$ or \(...\)
+    if ((part.startsWith("$") && part.endsWith("$") && part.length > 2) ||
+        (part.startsWith("\\(") && part.endsWith("\\)"))) {
+      const tex = part.startsWith("$") ? part.slice(1, -1) : part.slice(2, -2);
+      return <Formula key={i} tex={tex} />;
+    }
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
+      const inner = part.slice(2, -2);
+      return <strong key={i}>{highlights.length > 0 ? renderHighlightedText(inner, highlights) : inner}</strong>;
     }
     if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
       return <code key={i} className="inline-code">{part.slice(1, -1)}</code>;
     }
-    return part;
+    return highlights.length > 0 ? renderHighlightedText(part, highlights) : part;
   });
 }
 
-function FormattedText({ text, className = "" }) {
+function FormattedText({ text, highlights = [], className = "" }) {
   if (!text) return null;
   const blocks = String(text)
     .split(/\n\s*\n/)
@@ -80,19 +161,21 @@ function FormattedText({ text, className = "" }) {
           return (
             <ul key={i}>
               {lines.map((l, j) => (
-                <li key={j}>{renderInline(l.replace(/^[-*•]\s+/, ""))}</li>
+                <li key={j}>{renderInline(l.replace(/^[-*•]\s+/, ""), highlights)}</li>
               ))}
             </ul>
           );
         }
-        return <p key={i}>{renderInline(block)}</p>;
+        return <p key={i}>{renderInline(block, highlights)}</p>;
       })}
     </div>
   );
 }
 
-function Body({ res }) {
+function Body({ res, onAsk }) {
   if (res.mode === "error") return <p className="err">{res.error}</p>;
+  const highlights = res.highlights || [];
+
   if (res.mode === "card") {
     const empty = !res.answer && !res.explanation && res.key_points.length === 0;
     if (!res.found || empty)
@@ -105,38 +188,53 @@ function Body({ res }) {
       );
     return (
       <div className="card-body">
-        {res.title && <h3>{renderInline(res.title)}</h3>}
-        {res.answer && <p className="lead">{renderInline(res.answer)}</p>}
+        <SourceBadges res={res} />
+        {res.title && <h3>{renderInline(res.title, highlights)}</h3>}
+        {res.answer && <p className="lead">{renderInline(res.answer, highlights)}</p>}
+
+        {/* Highlights Legend */}
+        {highlights.length > 0 && <HighlightLegend highlights={highlights} />}
+
+        {/* Callouts */}
+        {res.callouts?.length > 0 && (
+          <div className="callouts-section">
+            {res.callouts.map((co, idx) => (
+              <CalloutBox key={idx} callout={co} />
+            ))}
+          </div>
+        )}
+
         {res.explanation && (
           <>
             <h4>Explanation</h4>
-            <FormattedText text={res.explanation} />
+            <FormattedText text={res.explanation} highlights={highlights} />
           </>
         )}
         {res.formula && (
-          <>
-            <h4>Key formula</h4>
-            <pre className="code">{res.formula}</pre>
-            {res.formula_where && <p className="cap">{renderInline(res.formula_where)}</p>}
-          </>
+          <FormulaBlock formula={res.formula} where={res.formula_where} />
         )}
         {res.key_points?.length > 0 && (
           <>
             <h4>Key points</h4>
             <ul>
               {res.key_points.map((k, i) => (
-                <li key={i}>{renderInline(k)}</li>
+                <li key={i}>{renderInline(k, highlights)}</li>
               ))}
             </ul>
           </>
         )}
+
+        {/* SVG Mind Map */}
+        {res.mindmap && <MindMap data={res.mindmap} onNodeClick={(label) => onAsk?.(`Explain "${label}" in more detail`)} />}
       </div>
     );
   }
   const text = res.reply || res.answer || res.explanation;
   return (
     <div className="reply">
-      <FormattedText text={text || "No answer came back. Try rephrasing, or press regenerate."} />
+      <SourceBadges res={res} />
+      <FormattedText text={text || "No answer came back. Try rephrasing, or press regenerate."} highlights={highlights} />
+      {res.mindmap && <MindMap data={res.mindmap} onNodeClick={(label) => onAsk?.(`Explain "${label}" in more detail`)} />}
     </div>
   );
 }
@@ -144,7 +242,7 @@ function Body({ res }) {
 function Sources({ res }) {
   const cited = (res.sources || []).filter((s) => res.cited?.includes(s.n));
   if (!cited.length) return null;
-  const pages = [...new Set(cited.map((s) => s.page))];
+  const pages = [...new Set(cited.map((s) => s.page).filter((p) => p !== null && p !== undefined))];
   return (
     <div className="src">
       <span>Sources</span>
@@ -158,7 +256,7 @@ function Sources({ res }) {
         {cited.map((s) => (
           <div key={s.n} className="passage">
             <b>
-              printed p.{s.page} (PDF p.{s.pdf_page})
+              {s.page !== null && s.page !== undefined ? `printed p.${s.page} (PDF p.${s.pdf_page})` : s.source}
             </b>
             <p>{s.text}</p>
           </div>
@@ -206,7 +304,7 @@ export default function Message({ msg, isLast, onRegenerate, onAsk }) {
 
   return (
     <div className="turn ai">
-      <Body res={res} />
+      <Body res={res} onAsk={onAsk} />
       {res.found && res.figures?.map((no) => <Figure key={no} res={res} no={no} />)}
       <AnswerExtras res={res} onAsk={onAsk} />
       {res.found && <Sources res={res} />}

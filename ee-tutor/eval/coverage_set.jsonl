@@ -1,0 +1,66 @@
+{"id": 1, "query": "What is the condition for a MOSFET to enter the saturation region?", "expected": "COVERED"}
+{"id": 2, "query": "Explain channel length modulation in MOSFETs and its parameter lambda.", "expected": "COVERED"}
+{"id": 3, "query": "Why does drain current saturate in an NMOS transistor?", "expected": "COVERED"}
+{"id": 4, "query": "How does source degeneration affect the gain of a common-source amplifier?", "expected": "COVERED"}
+{"id": 5, "query": "What is the small-signal transconductance gm of a MOSFET?", "expected": "COVERED"}
+{"id": 6, "query": "Explain the body effect in NMOS transistors and how threshold voltage changes.", "expected": "COVERED"}
+{"id": 7, "query": "Describe the operation and advantages of a cascode amplifier stage.", "expected": "COVERED"}
+{"id": 8, "query": "How does a basic MOS current mirror copy reference current?", "expected": "COVERED"}
+{"id": 9, "query": "What causes pinch-off in the inversion layer of an NMOS device?", "expected": "COVERED"}
+{"id": 10, "query": "How does velocity saturation limit the drain current in short-channel MOSFETs?", "expected": "COVERED"}
+{"id": 11, "query": "State Thevenin's theorem and how to calculate Vth and Rth.", "expected": "COVERED"}
+{"id": 12, "query": "How do you find the Norton equivalent current from a linear circuit?", "expected": "COVERED"}
+{"id": 13, "query": "What is the time constant of an RC circuit during capacitor charging?", "expected": "COVERED"}
+{"id": 14, "query": "Derive the voltage formula across a charging capacitor in an RC circuit.", "expected": "COVERED"}
+{"id": 15, "query": "Explain the concept of impedance in an AC circuit with inductors and capacitors.", "expected": "COVERED"}
+{"id": 16, "query": "What is a phasor and how does it represent sinusoidal voltages and currents?", "expected": "COVERED"}
+{"id": 17, "query": "Explain resonance in a series RLC circuit and calculate resonant frequency.", "expected": "COVERED"}
+{"id": 18, "query": "How does maximum power transfer theorem apply to DC circuits?", "expected": "COVERED"}
+{"id": 19, "query": "What is the phase relationship between voltage and current across an ideal inductor?", "expected": "COVERED"}
+{"id": 20, "query": "Explain the difference between transient state and steady state in RC networks.", "expected": "COVERED"}
+{"id": 21, "query": "State De Morgan's laws for Boolean algebra and draw the equivalent gates.", "expected": "COVERED"}
+{"id": 22, "query": "How do you simplify a 4-variable Boolean function using a Karnaugh map?", "expected": "COVERED"}
+{"id": 23, "query": "Explain the difference between combinational logic and sequential logic circuits.", "expected": "COVERED"}
+{"id": 24, "query": "Describe the internal architecture and truth table of a 4-to-1 multiplexer.", "expected": "COVERED"}
+{"id": 25, "query": "What is the race-around condition in a JK flip-flop and how does master-slave resolve it?", "expected": "COVERED"}
+{"id": 26, "query": "Explain how a D flip-flop stores 1 bit of digital information on clock edge.", "expected": "COVERED"}
+{"id": 27, "query": "Design a 3-bit synchronous up-counter using flip-flops.", "expected": "COVERED"}
+{"id": 28, "query": "What is the difference between synchronous and asynchronous counters?", "expected": "COVERED"}
+{"id": 29, "query": "Describe the truth table and operation of a 3-to-8 decoder.", "expected": "COVERED"}
+{"id": 30, "query": "How does a parallel-in serial-out (PISO) shift register work?", "expected": "COVERED"}
+{"id": 31, "query": "Explain the 5 classic RISC pipeline stages: IF, ID, EX, MEM, and WB.", "expected": "COVERED"}
+{"id": 32, "query": "What is a data hazard in instruction pipelining and how does operand forwarding help?", "expected": "COVERED"}
+{"id": 33, "query": "Explain control hazards caused by branch instructions and how branch prediction mitigates them.", "expected": "COVERED"}
+{"id": 34, "query": "Describe the difference between direct-mapped cache and 2-way set-associative cache.", "expected": "COVERED"}
+{"id": 35, "query": "What is a cache miss penalty and how does multi-level cache hierarchy reduce average memory access time?", "expected": "COVERED"}
+{"id": 36, "query": "Explain spatial locality versus temporal locality in cache memory systems.", "expected": "COVERED"}
+{"id": 37, "query": "How does cellular respiration produce ATP in human mitochondria?", "expected": "NOT_COVERED"}
+{"id": 38, "query": "Explain the light-dependent reactions of photosynthesis in plant chloroplasts.", "expected": "NOT_COVERED"}
+{"id": 39, "query": "How do mRNA vaccines stimulate the human immune system?", "expected": "NOT_COVERED"}
+{"id": 40, "query": "What is the function of the nephron in human kidney filtration?", "expected": "NOT_COVERED"}
+{"id": 41, "query": "What is the reaction mechanism for electrophilic aromatic substitution in benzene?", "expected": "NOT_COVERED"}
+{"id": 42, "query": "Explain how Le Chatelier's principle predicts equilibrium shift in chemical reactions.", "expected": "NOT_COVERED"}
+{"id": 43, "query": "What is the difference between SN1 and SN2 nucleophilic substitution reactions?", "expected": "NOT_COVERED"}
+{"id": 44, "query": "How do buffer solutions resist changes in pH when strong acid is added?", "expected": "NOT_COVERED"}
+{"id": 45, "query": "What were the economic causes of the French Revolution in 1789?", "expected": "NOT_COVERED"}
+{"id": 46, "query": "Analyze the theme of madness in Shakespeare's tragedy Hamlet.", "expected": "NOT_COVERED"}
+{"id": 47, "query": "Describe the fall of the Western Roman Empire in the 5th century CE.", "expected": "NOT_COVERED"}
+{"id": 48, "query": "What was the significance of the Treaty of Versailles in 1919?", "expected": "NOT_COVERED"}
+{"id": 49, "query": "Explain Keynesian fiscal policy versus monetary policy during economic recessions.", "expected": "NOT_COVERED"}
+{"id": 50, "query": "What is the difference between demand-pull inflation and cost-push inflation?", "expected": "NOT_COVERED"}
+{"id": 51, "query": "How does the Black-Scholes model price European call options?", "expected": "NOT_COVERED"}
+{"id": 52, "query": "Explain the concept of comparative advantage in international trade theory.", "expected": "NOT_COVERED"}
+{"id": 53, "query": "How does the useEffect hook in React handle component unmounting?", "expected": "NOT_COVERED"}
+{"id": 54, "query": "Explain database normalization from 1NF to 3NF and Boyce-Codd Normal Form.", "expected": "NOT_COVERED"}
+{"id": 55, "query": "How does transformer self-attention calculate query, key, and value matrices in NLP?", "expected": "NOT_COVERED"}
+{"id": 56, "query": "What is the difference between Docker containers and virtual machine hypervisors?", "expected": "NOT_COVERED"}
+{"id": 57, "query": "How does Git implement merge conflicts and how does git rebase work?", "expected": "NOT_COVERED"}
+{"id": 58, "query": "Explain the architecture of Django REST framework viewsets and serializers.", "expected": "NOT_COVERED"}
+{"id": 59, "query": "How does Kubernetes manage pod replica sets and automated health check liveness probes?", "expected": "NOT_COVERED"}
+{"id": 60, "query": "What is CSS flexbox justify-content versus align-items property behavior?", "expected": "NOT_COVERED"}
+{"id": 61, "query": "Explain proof-of-work consensus versus proof-of-stake in blockchain networks.", "expected": "NOT_COVERED"}
+{"id": 62, "query": "How do Swift async/await tasks handle concurrency on iOS?", "expected": "NOT_COVERED"}
+{"id": 63, "query": "What is the difference between REST API and GraphQL schema resolvers?", "expected": "NOT_COVERED"}
+{"id": 64, "query": "How does B-Tree indexing speed up search operations in PostgreSQL?", "expected": "NOT_COVERED"}
+{"id": 65, "query": "Explain the difference between TCP three-way handshake and UDP datagram protocol.", "expected": "NOT_COVERED"}
+{"id": 66, "query": "What is vector quantization in generative image diffusion models?", "expected": "NOT_COVERED"}

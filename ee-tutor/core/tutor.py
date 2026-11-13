@@ -232,18 +232,28 @@ def get_retriever():
 
 def retrieve(query, level):
     hits = get_retriever().search(query, k=20, mode="rerank")
-    hits = [(c, s) for c, s in hits if c["page"] >= info(c["source_id"])["min"]]
-    if level == "beginner":
-        hits = [(c, s) for c, s in hits if c["page"] <= MAX_BASIC_PAGE.get(c["source_id"], 10**6)]
-    hits = hits[:5]
+    filtered = []
+    for c, s in hits:
+        page = c.get("page")
+        if page is not None:
+            min_page = info(c.get("source_id", ""))["min"]
+            if page < min_page:
+                continue
+            if level == "beginner" and page > MAX_BASIC_PAGE.get(c.get("source_id", ""), 10**6):
+                continue
+        filtered.append((c, s))
+    hits = filtered[:5]
     return [
         {
             "n": i,
-            "source": c["source_id"],
-            "page": c["page"] - info(c["source_id"])["offset"],
-            "pdf_page": c["page"],
-            "text": c["text"],
+            "source": c.get("source_id", ""),
+            "page": (c["page"] - info(c["source_id"])["offset"]) if c.get("page") is not None else None,
+            "pdf_page": c.get("page"),
+            "text": c.get("text", ""),
             "score": None if s is None else float(s),
+            "timestamp": c.get("timestamp"),
+            "topics": c.get("topics", []),
+            "tier": c.get("tier"),
         }
         for i, (c, s) in enumerate(hits, 1)
     ]
@@ -276,6 +286,40 @@ def fig_page(sources, no):
     return sources[0]["pdf_page"]
 
 
+def build_general_system(level="beginner"):
+    style = _STYLE.get(level, _STYLE["beginner"])
+    return f"""You are EE Tutor: an exceptional, warm, and highly knowledgeable electrical and electronics \
+engineering teacher (circuits, control systems, robotics, analog and digital electronics, computer architecture, \
+signals, power, and engineering careers). You explain topics with deep insight, clarity, and a comfortable, \
+beautifully structured layout.
+
+READABILITY, STRUCTURE & BREATHING ROOM (CRITICAL)
+- Never output an unbroken wall of text. Text must breathe so students absorb concepts effortlessly.
+- Short Paragraphs: Keep every paragraph strictly 2 to 3 sentences maximum.
+- Paragraph Spacing: Separate distinct thoughts, roles, or mechanisms with clean double line breaks (\n\n).
+- Key Terms in Bold: Use **bold** on the first mention of critical job titles, technical concepts, software tools, or hardware platforms.
+- NO BRACKETED CITATIONS IN TEXT: NEVER write [1], [2], [4], [W1], [p.12] in any text field. Keep all sentences fluent and clean.
+- Mind Maps: ALWAYS generate a rich, interactive mindmap with 3 to 4 colorful branches!
+
+{style}
+
+Return ONLY a JSON object (no markdown fences) with these keys:
+"mode": "card"
+"title": short topic name, max 8 words (e.g. "Careers in Control Systems")
+"answer": 1 to 2 sentence core overview in bold, engaging words (the big picture)
+"explanation": 2 to 3 short paragraphs (strictly 2-3 sentences each, separated by \n\n), highlighting **key roles**, **industries**, and **mechanisms**, ending with "In short, ..."
+"key_points": list of 3 to 5 punchy bullet points, each starting with a **Bold Lead Phrase**
+"formula": core governing equation, key tool/standard (e.g. "G(s)H(s) = -1" or "PLC / SCADA / DCS"), or ""
+"formula_where": one line explaining the formula, key tools, or certifications, or ""
+"mindmap": {{"center": "topic, max 4 words", "branches": [{{"label": "branch label", "children": ["child 1", "child 2", "child 3"]}}]}} with 3 to 4 branches (e.g. "Core Roles", "Key Industries", "Essential Tools", "Career Growth")
+"flowchart": flowchart object or null
+"steps": 3 to 5 ordered strings if discussing a workflow, design cycle, or career path, else []
+"example": short concrete real-world example or industry project, or ""
+"summary": 2 to 4 bullet strings recapping main takeaways
+"followups": 3 thought-provoking follow-up questions
+"found": true"""
+
+
 def check_relevancy(query, sources):
     """Agentic Node: LLM Relevancy Check on Vector Database chunks."""
     if not sources:
@@ -300,86 +344,122 @@ def rewrite_for_web(query, hist=""):
         return query
 
 
-def web_search_pipeline(query, level="beginner", first=False):
-    """Agentic Node: Tavily Web Search (with Google Search fallback) -> LLM generation."""
-    # 1. Try Tavily Search first (matches user architecture)
-    results = web_search(query, k=4)
-    if results:
-        snippets = "\n\n".join(f"Source [{i}]: {r['title']}\n{r['snippet']}" for i, r in enumerate(results, 1))
-        user_prompt = f"Student Question: {query}\n\nWeb Search Snippets:\n{snippets}"
-        try:
-            d = parse_json(generate(WEB_SYSTEM, user_prompt))
-            reply = strip_citations(str(d.get("reply", "")))
-            if reply:
-                used = [i for i in d.get("used", []) if isinstance(i, int) and 1 <= i <= len(results)]
-                used_sources = [results[i - 1] for i in used] if used else results[:3]
-                return {
-                    "mode": "chat",
-                    "found": False,
-                    "web_used": True,
-                    "web_sources": used_sources,
-                    "reply": reply,
-                }
-        except Exception:
-            pass
-
-    # 2. Fallback to Gemini Google Search grounding
-    g = grounded_answer(query)
-    if g:
+def generate_structured_response(system_prompt, user_input, level="beginner"):
+    """Guarantees a complete structured card with title, lead, short paragraphs, key points, and Mindmap."""
+    raw = generate(system_prompt, user_input)
+    try:
+        d = parse_json(raw)
+    except Exception:
+        clean_txt = strip_citations(raw[:1200])
         return {
-            "mode": "chat",
-            "found": False,
-            "web_used": True,
-            "web_sources": g["sources"],
-            "reply": strip_citations(g["reply"]),
+            "mode": "card",
+            "found": True,
+            "title": "Engineering Overview",
+            "answer": clean_txt[:160] + "...",
+            "explanation": clean_txt,
+            "key_points": [],
+            "formula": "",
+            "formula_where": "",
+            "reply": clean_txt,
+            "mindmap": None,
+            "summary": [],
+            "followups": [],
         }
 
-    # 3. Last resort: general knowledge
-    try:
-        txt = generate(GENERAL_SYSTEM, query).strip()
-        if txt:
-            return {
-                "mode": "chat",
-                "found": False,
-                "web_used": False,
-                "web_sources": [],
-                "reply": "This isn't in your textbook, and web search was unavailable, so here is the general engineering explanation:\n\n" + strip_citations(txt),
-            }
-    except Exception:
-        pass
-    return None
+    title = strip_citations(d.get("title", ""))
+    answer = strip_citations(d.get("answer", ""))
+    explanation = strip_citations(d.get("explanation", ""))
+    key_points = [strip_citations(x) for x in d.get("key_points", []) if strip_citations(x)][:6]
+    formula = str(d.get("formula", "")).strip()
+    formula_where = strip_citations(d.get("formula_where", ""))
+    reply = strip_citations(str(d.get("reply", "")))
+
+    res = {
+        "mode": "card",
+        "found": True,
+        "title": title or "Engineering Concept",
+        "answer": answer,
+        "explanation": explanation,
+        "key_points": key_points,
+        "formula": formula,
+        "formula_where": formula_where,
+        "reply": reply or (answer + "\n\n" + explanation).strip(),
+        "figures": [],
+        "figure_pages": {},
+        "cited": [],
+    }
+    res.update(clean_extras(d))
+    return res
+
+
+def web_search_pipeline(query, level="beginner", first=False):
+    """Executes Tavily Web Search / Google Search / General EE Knowledge -> Always returns a rich structured card."""
+    # 1. Try Tavily Search first
+    results = web_search(query, k=4)
+    if results:
+        snippets = "\n\n".join(f"Source [{i}] {r['title']}: {r['snippet']}" for i, r in enumerate(results, 1))
+        user_prompt = f"Student Question: {query}\n\nLive Web Search Snippets:\n{snippets}"
+        out = generate_structured_response(build_general_system(level), user_prompt, level)
+        out.update(web_used=True, web_sources=results[:4])
+        return out
+
+    # 2. Fallback to Gemini Google Search grounding if available
+    g = grounded_answer(query)
+    if g:
+        user_prompt = f"Student Question: {query}\n\nLive Web Grounding:\n{g['reply']}"
+        out = generate_structured_response(build_general_system(level), user_prompt, level)
+        out.update(web_used=True, web_sources=g["sources"])
+        return out
+
+    # 3. Comprehensive General Engineering Knowledge (Always a rich card with Mindmap & bold text)
+    user_prompt = f"Student Question: {query}\n\nPlease explain thoroughly with a complete, structured card, bold terms, and mind map."
+    out = generate_structured_response(build_general_system(level), user_prompt, level)
+    out.update(web_used=False, web_sources=[])
+    return out
 
 
 def web_fallback(query):
-    """For questions outside the textbook. Tries, in order: (1) Gemini + Google Search,
-    (2) Tavily snippets if TAVILY_API_KEY is set, (3) plain general knowledge."""
-    g = grounded_answer(query)
-    if g:
-        return {"web_used": True, "web_sources": g["sources"], "reply": strip_citations(g["reply"])}
+    return web_search_pipeline(query)
 
-    results = web_search(query)
-    if results:
-        snippets = "\n\n".join(f"[W{i}] {r['title']}\n{r['snippet']}" for i, r in enumerate(results, 1))
-        user = f"Question: {query}\n\nWeb search snippets:\n{snippets}"
-        try:
-            d = parse_json(generate(WEB_SYSTEM, user))
-            used = [i for i in d.get("used", []) if isinstance(i, int) and 1 <= i <= len(results)]
-            reply = str(d.get("reply", "")).strip()
-            if reply:
-                return {"web_used": True, "web_sources": [results[i - 1] for i in used] or results[:2], "reply": strip_citations(reply)}
-        except Exception:
-            pass
-
-    try:  # last resort: no web available, answer from general knowledge and say so
-        txt = generate(GENERAL_SYSTEM, query).strip()
-    except Exception:
-        return None
-    if not txt:
-        return None
-    return {"web_used": False, "web_sources": [],
-            "reply": "This isn't in your textbook, and web search wasn't available, so this is general knowledge:\n\n" + txt}
 
 def respond(msgs, level):
+    q = msgs[-1]["content"]
+    try:
+        from core.agents.rag_graph import execute_agent_rag
+        agent_out = execute_agent_rag(q, msgs, level=level, mode="text")
+        if agent_out and agent_out.get("mode"):
+            base = {
+                "mode": agent_out.get("mode", "card"),
+                "found": agent_out.get("found", True),
+                "reply": agent_out.get("reply", ""),
+                "answer": agent_out.get("answer", ""),
+                "explanation": agent_out.get("explanation", ""),
+                "title": agent_out.get("title", ""),
+                "key_points": agent_out.get("key_points", []),
+                "formula": agent_out.get("formula", ""),
+                "formula_where": agent_out.get("formula_where", ""),
+                "figures": agent_out.get("figures", []),
+                "figure_pages": agent_out.get("figure_pages", {}),
+                "sources": agent_out.get("sources", []),
+                "cited": agent_out.get("cited", []),
+                "search_q": q,
+                "web_used": agent_out.get("web_used", False),
+                "web_sources": agent_out.get("web_sources", []),
+                "coverage": agent_out.get("coverage", "COVERED"),
+                "source_kind": agent_out.get("source_kind", "books"),
+                "source_badges": agent_out.get("source_badges", ["From your books"]),
+                "mindmap": agent_out.get("mindmap"),
+                "highlights": agent_out.get("highlights", []),
+                "callouts": agent_out.get("callouts", []),
+                "nptel_link": agent_out.get("nptel_link"),
+            }
+            base.update(agent_out)
+            return base
+    except Exception as e:
+        print(f"Agent graph execution notice: {e}, falling back to direct respond")
+
+    # Fallback to direct logic if graph didn't return:
+
     q = msgs[-1]["content"]
     prior = msgs[:-1]
     first = not prior
@@ -633,24 +713,101 @@ def _nptel_clip(text):
 
 
 def start_video_job(job_id, query, level):
-    _video_jobs[job_id] = {"status": "planning", "title": "", "seconds": 0, "error": ""}
-    _nptel_by_job[job_id] = _nptel_clip(query)  # instant, shown while the animation is still being made
+    _video_jobs[job_id] = {"status": "planning", "title": query[:60], "seconds": 0, "error": ""}
+    _nptel_by_job[job_id] = _nptel_clip(query)  # instant, shown while render is still going
     try:
+        # Step 1: coverage check via rag_graph
+        from core.agents.rag_graph import execute_agent_rag
+        agent_res = execute_agent_rag(query, [], level=level, mode="video")
+        coverage_result = agent_res.get("coverage", "COVERED")
+        print(f"[video] coverage={coverage_result} proceed={agent_res.get('proceed_render',True)} query={query[:60]!r}", flush=True)
+        if not agent_res.get("proceed_render", True):
+            # NOT_COVERED -> return web video recommendations instead
+            _video_jobs[job_id] = {
+                "status": "done",
+                "kind": "web_videos",
+                "title": agent_res.get("title", f"Web Videos: {query}"),
+                "seconds": 0,
+                "error": "",
+                "web_videos": agent_res.get("web_videos", []),
+                "coverage": "NOT_COVERED",
+                "notice": "Web video, not made from your syllabus",
+            }
+            VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+            try:
+                (VIDEO_DIR / f"{job_id}.json").write_text(
+                    json.dumps(_video_jobs[job_id]), encoding="utf-8")
+            except Exception:
+                pass
+            return
+
+        # Step 2: agentic video generator (primary path)
+        _video_jobs[job_id]["status"] = "rendering"
+
+        def _progress(msg: str) -> None:
+            _video_jobs[job_id]["detail"] = msg
+            work_dir = VIDEO_DIR / job_id
+            try:
+                work_dir.mkdir(parents=True, exist_ok=True)
+                (work_dir / "progress.json").write_text(
+                    json.dumps({"detail": msg}), encoding="utf-8")
+            except OSError:
+                pass
+
+        try:
+            from core.video.agent import run_video_agent
+            vj = run_video_agent(query, level, job_id, progress_fn=_progress)
+            if vj.final_mp4 and Path(vj.final_mp4).exists():
+                total_s = sum(sc.audio_duration for sc in vj.scenes) or 0.0
+                title = query[:80]
+                for entry in reversed(vj.trace):
+                    r = entry.get("result", {})
+                    if isinstance(r, dict) and r.get("summary"):
+                        title = r["summary"][:80]
+                        break
+                _video_jobs[job_id] = {
+                    "status": "done",
+                    "title": title,
+                    "seconds": round(total_s, 1),
+                    "error": "",
+                }
+                VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+                try:
+                    (VIDEO_DIR / f"{job_id}.json").write_text(
+                        json.dumps({"title": title,
+                                    "seconds": round(total_s, 1),
+                                    "nptel": _nptel_by_job.get(job_id)}),
+                        encoding="utf-8")
+                except Exception:
+                    pass
+                _nptel_by_job[job_id] = _nptel_clip(title) or _nptel_by_job.get(job_id)
+                return
+        except Exception as agent_err:
+            print(f"[video] agent failed ({agent_err}); falling back to template worker",
+                  flush=True)
+
+        # Step 3: fallback - template-based worker subprocess
         plan = generate_video_plan(query, level)
         if not plan["found"]:
-            _video_jobs[job_id] = {"status": "error", "title": plan.get("video_title", ""),
-                                    "seconds": 0, "error": plan.get("reason", "Not covered by your sources.")}
+            _video_jobs[job_id] = {
+                "status": "error",
+                "title": plan.get("video_title", ""),
+                "seconds": 0,
+                "error": plan.get("reason", "Not covered by your sources."),
+            }
             return
-        _video_jobs[job_id]["status"] = "rendering"
         _video_jobs[job_id]["title"] = plan["video_title"]
-        richer = " ".join([query, plan["video_title"]] + [s.get("title", "") for s in plan["scenes"]])
-        _nptel_by_job[job_id] = _nptel_clip(richer) or _nptel_by_job.get(job_id)  # sharper match from the plan
+        richer = " ".join(
+            [query, plan["video_title"]] + [s.get("title", "") for s in plan["scenes"]])
+        _nptel_by_job[job_id] = _nptel_clip(richer) or _nptel_by_job.get(job_id)
         VIDEO_DIR.mkdir(parents=True, exist_ok=True)
         work = VIDEO_DIR / job_id
         work.mkdir(parents=True, exist_ok=True)
         (work / "plan.json").write_text(json.dumps(plan), encoding="utf-8")
-        with open(work / "worker.log", "w", encoding="utf-8") as log:  # rendering runs in its own process
-            proc = subprocess.Popen([sys.executable, "-m", "core.video.worker", job_id], stdout=log, stderr=subprocess.STDOUT)
+        with open(work / "worker.log", "w", encoding="utf-8") as log:
+            proc = subprocess.Popen(
+                [sys.executable, "-m", "core.video.worker", job_id],
+                stdout=log, stderr=subprocess.STDOUT)
             try:
                 proc.wait(timeout=1800)
             except subprocess.TimeoutExpired:
@@ -659,28 +816,40 @@ def start_video_job(job_id, query, level):
         if proc.returncode != 0 or not (VIDEO_DIR / f"{job_id}.mp4").exists():
             tail = (work / "worker.log").read_text(encoding="utf-8", errors="replace")[-700:]
             raise RuntimeError(tail.strip() or "the render process crashed")
-        total_seconds = json.loads((work / "result.json").read_text(encoding="utf-8"))["seconds"]
-        _video_jobs[job_id] = {"status": "done", "title": plan["video_title"],
-                                "seconds": round(total_seconds, 1), "error": ""}
-        try:  # remember title/length so the video still shows up after a server restart
+        total_seconds = json.loads(
+            (work / "result.json").read_text(encoding="utf-8"))["seconds"]
+        _video_jobs[job_id] = {
+            "status": "done",
+            "title": plan["video_title"],
+            "seconds": round(total_seconds, 1),
+            "error": "",
+        }
+        try:
             (VIDEO_DIR / f"{job_id}.json").write_text(
-                json.dumps({"title": plan["video_title"], "seconds": round(total_seconds, 1), "nptel": _nptel_by_job.get(job_id)}), encoding="utf-8")
+                json.dumps({"title": plan["video_title"],
+                            "seconds": round(total_seconds, 1),
+                            "nptel": _nptel_by_job.get(job_id)}),
+                encoding="utf-8")
         except Exception:
             pass
     except Exception as e:
-        _video_jobs[job_id] = {"status": "error", "title": _video_jobs.get(job_id, {}).get("title", ""),
-                                "seconds": 0, "error": f"Video generation failed: {e}"}
+        _video_jobs[job_id] = {
+            "status": "error",
+            "title": _video_jobs.get(job_id, {}).get("title", ""),
+            "seconds": 0,
+            "error": f"Video generation failed: {e}",
+        }
 
 
 def get_video_job(job_id):
     job = _video_jobs.get(job_id)
-    if job is None and (VIDEO_DIR / f"{job_id}.mp4").exists():  # finished earlier, server restarted since
+    if job is None and (VIDEO_DIR / f"{job_id}.json").exists():  # finished earlier, server restarted since
         meta = {}
         try:
             meta = json.loads((VIDEO_DIR / f"{job_id}.json").read_text(encoding="utf-8"))
         except Exception:
             pass
-        job = {"status": "done", "title": meta.get("title", ""), "seconds": meta.get("seconds", 0), "error": ""}
+        job = dict(meta) if meta else {"status": "done", "title": "", "seconds": 0, "error": ""}
         _nptel_by_job.setdefault(job_id, meta.get("nptel"))
     if job is None:
         return None

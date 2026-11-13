@@ -28,6 +28,8 @@
   --chip1: rgba(91, 140, 255, 0.16); --chip2: rgba(53, 240, 176, 0.14); --chip3: rgba(255, 95, 210, 0.15);
   --grad-text: linear-gradient(90deg, #6aa0ff, #ff5fd2, #35f0b0);
   --focus: #35f0b0;
+  --formula-bg: rgba(122, 162, 247, 0.07);
+  --formula-border: rgba(122, 162, 247, 0.22);
   --page-bg:
     radial-gradient(900px 520px at 12% -8%, rgba(60, 80, 255, 0.28), transparent 60%),
     radial-gradient(700px 500px at 100% 12%, rgba(255, 70, 200, 0.18), transparent 60%),
@@ -58,6 +60,8 @@
   --disabled: #e6def5;
   --code-bg: #f3ecff;
   --err: #d6334f;
+  --formula-bg: rgba(65, 105, 225, 0.05);
+  --formula-border: rgba(65, 105, 225, 0.18);
   --link: #6b4ce0;
   --warn-bg: #ffe1e6; --warn-text: #8f2238;
   --scroll: #cdbdf5;
@@ -305,6 +309,8 @@ button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px
   --focus: #b8793a;
   --gold: #c39a45;
   --serif: "Lora", Georgia, "Times New Roman", serif;
+  --formula-bg: rgba(100, 60, 20, 0.06);
+  --formula-border: rgba(110, 75, 40, 0.25);
   --page-bg:
     radial-gradient(1200px 700px at 50% -10%, rgba(255, 251, 238, 0.95), transparent 70%),
     repeating-linear-gradient(0deg, rgba(139, 100, 60, 0.03) 0 1px, transparent 1px 4px),

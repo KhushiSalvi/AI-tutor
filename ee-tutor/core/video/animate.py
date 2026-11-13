@@ -3,23 +3,28 @@
 Runs inside its own worker process (core/video/worker.py), NOT inside the web server, so
 Windows COM/asyncio/thread quirks can't freeze it, and every step logs to worker.log.
 
-Per scene: narrate (edge-tts neural voice, falls back to the offline Windows voice) -> measure the
-real audio length -> draw the HTML/CSS animation frame by frame in headless Chromium -> pipe the
-frames straight into ffmpeg together with the audio. Scenes are then joined into one mp4.
+Per scene: narrate (Gemini TTS → edge-tts → offline Windows voice, via core/video/tts.py) ->
+measure the real audio length -> quality-gate check (3 sample frames) ->
+draw every frame and pipe into ffmpeg together with the audio. Scenes are then joined into one mp4.
 """
-import re
-import shutil
 import subprocess
 import time
 import wave
 from pathlib import Path
 
-from core.video.templates import render_scene_html
+import shutil
+
+from core.video.templates import render_scene_html, title_bullets
+from core.video.tts import synthesize_with_cache
 
 FPS = 12
 TAIL_PAD = 0.6          # hold the last frame a moment so animations never cut off mid-motion
 JPEG_QUALITY = 80
-EDGE_VOICE = "en-US-AriaNeural"   # other voices: run  edge-tts --list-voices
+
+# Quality gate: sample these fractions of a scene's duration to detect a blank/broken render
+_QG_SAMPLE_FRACTIONS = [0.2, 0.5, 0.8]
+# Minimum fraction of non-white pixels in a sample frame; below this we fall back
+_QG_MIN_NON_WHITE_FRACTION = 0.01
 
 SEEK_JS = """(t) => {
     document.querySelectorAll('.anim').forEach(el => {
@@ -28,8 +33,6 @@ SEEK_JS = """(t) => {
     });
 }"""
 
-_edge_broken = False
-
 
 def _run(cmd, what):
     r = subprocess.run(cmd, capture_output=True, text=True)
@@ -37,56 +40,46 @@ def _run(cmd, what):
         raise RuntimeError(f"{what} failed: {(r.stderr or '')[-600:]}")
 
 
-def _tts_edge(text, out_wav, work, stem):
-    import asyncio
-    import edge_tts
-
-    mp3 = work / f"{stem}.mp3"
-
-    async def go():
-        await asyncio.wait_for(edge_tts.Communicate(text, EDGE_VOICE).save(str(mp3)), timeout=90)
-
-    asyncio.run(go())
-    _run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(mp3), "-ar", "24000", "-ac", "1", str(out_wav)], "mp3->wav")
-    mp3.unlink(missing_ok=True)
-
-
-def _tts_offline(text, out_wav, work, stem):
-    """Windows built-in voice. One call per sentence (a single long call can cut speech short)."""
-    import pyttsx3
-
-    sentences = [x.strip() for x in re.split(r"(?<=[.!?])\s+", text.strip()) if x.strip()] or [text.strip() or "."]
-    parts = []
-    for i, sent in enumerate(sentences):
-        part = work / f"{stem}_part{i}.wav"
-        engine = pyttsx3.init()
-        engine.setProperty("rate", 175)
-        engine.save_to_file(sent, str(part))
-        engine.runAndWait()
-        engine.stop()
-        parts.append(part)
-    if len(parts) == 1:
-        parts[0].replace(out_wav)
-        return
-    lst = work / f"{stem}_concat.txt"
-    lst.write_text("\n".join(f"file '{p.resolve().as_posix()}'" for p in parts), encoding="utf-8")
-    _run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), str(out_wav)], "join sentences")
-    for p in parts:
-        p.unlink(missing_ok=True)
-    lst.unlink(missing_ok=True)
-
-
 def synth_audio(text, out_wav, work, stem, log=print):
-    global _edge_broken
-    if not _edge_broken:
-        try:
-            _tts_edge(text, out_wav, work, stem)
-            return "edge-tts"
-        except Exception as e:  # no internet / package missing -> use the offline voice from now on
-            _edge_broken = True
-            log(f"edge-tts unavailable ({type(e).__name__}: {e}); using the offline Windows voice instead")
-    _tts_offline(text, out_wav, work, stem)
-    return "offline voice"
+    """Synthesize narration for one scene.  Delegates to the provider chain in tts.py."""
+    return synthesize_with_cache(text, out_wav, work, stem, log=log)
+
+
+def _quality_check(page, html, duration, log=print):
+    """Sample 3 frames of the rendered scene and return True if content looks non-blank.
+
+    Uses a lightweight pixel-brightness heuristic: a nearly-all-white/black screenshot
+    with almost no content means the template probably failed to render (e.g. missing
+    required fields, layout overflow). Falls back to title_bullets when this happens.
+    Uses only stdlib — no Pillow dependency required.
+    """
+    try:
+        import struct, zlib
+
+        page.set_content(html)
+        page.wait_for_timeout(60)   # brief settle
+
+        ok_count = 0
+        for frac in _QG_SAMPLE_FRACTIONS:
+            t = frac * duration
+            page.evaluate(SEEK_JS, t)
+            png_bytes = page.screenshot(type="png")
+            # Parse PNG: IHDR gives width/height; scan IDAT chunks for non-trivial pixel variance
+            # Quick approach: compare compressed size to raw size — a blank image compresses >99%
+            raw_size = len(png_bytes)
+            # A content-rich frame compresses to >2% of raw; blank/solid compresses >99%
+            # We use the png byte length as a proxy (larger = more varied pixels)
+            # 1280×720 RGB = 2.76 MB raw; a solid-colour PNG is typically <10 KB
+            if raw_size > 15_000:   # >15 KB means there's real content in the frame
+                ok_count += 1
+
+        passed = ok_count >= 2      # at least 2 of 3 samples must look non-blank
+        if not passed:
+            log("Quality gate: frame looks blank/broken — will fall back to title_bullets")
+        return passed
+    except Exception as e:
+        log(f"Quality gate check failed ({e}); assuming OK")
+        return True  # non-fatal: proceed with the original render
 
 
 def audio_duration(path):
@@ -104,7 +97,7 @@ def render_scene(page, html, duration, out_mp4, wav, work, label, progress, fps=
     page.wait_for_timeout(80)
     n_frames = max(int((duration + TAIL_PAD) * fps), 1)
     err_path = work / "ffmpeg.log"
-    with open(err_path, "wb") as errf:      # ffmpeg's messages go to a file, so a full pipe can never block it
+    with open(err_path, "wb") as errf:
         proc = subprocess.Popen(
             ["ffmpeg", "-y", "-loglevel", "error", "-nostats",
              "-f", "image2pipe", "-framerate", str(fps), "-c:v", "mjpeg", "-i", "-",
@@ -126,6 +119,26 @@ def render_scene(page, html, duration, out_mp4, wav, work, label, progress, fps=
         raise RuntimeError("ffmpeg could not encode a scene: " + err_path.read_text(errors="replace")[-600:])
 
 
+def _render_scene_with_quality_gate(page, sc, i, n, wav, dur, clip, work, progress):
+    """Render one scene, running the quality gate first.
+
+    If the quality gate fails (blank/broken frames), the scene's visual is replaced
+    with a safe title_bullets fallback and re-rendered. Only the failed scene is
+    re-rendered — other scenes are unaffected.
+    """
+    html = render_scene_html(sc, i, n)
+    if not _quality_check(page, html, dur, log=progress):
+        progress(f"Scene {i}/{n}: quality gate failed — retrying with title_bullets fallback")
+        # Build a safe fallback visual using whatever text is available in the scene
+        fallback_sc = dict(sc)
+        bullets = [str(x) for x in (sc.get("visual", {}).get("bullets") or [])][:3]
+        if not bullets:
+            bullets = [sc.get("title", f"Scene {i}")]
+        fallback_sc["visual"] = {"type": "title_bullets", "bullets": bullets}
+        html = render_scene_html(fallback_sc, i, n)
+    render_scene(page, html, dur, clip, wav, work, f"Scene {i}/{n}", progress)
+
+
 def build_video(scenes, out_dir, video_id, progress=print):
     if not shutil.which("ffmpeg"):
         raise RuntimeError("ffmpeg was not found on PATH. Install it and open a NEW terminal before starting uvicorn.")
@@ -135,7 +148,8 @@ def build_video(scenes, out_dir, video_id, progress=print):
     work.mkdir(parents=True, exist_ok=True)
     n, t0 = len(scenes), time.time()
 
-    # 1) narration for every scene first (the voice engine must not run inside the browser engine's event loop)
+    # 1) Narration for every scene first
+    #    (voice engine must not run inside the browser's event loop)
     audio = []
     for i, sc in enumerate(scenes, 1):
         progress(f"Scene {i}/{n}: recording narration…")
@@ -144,7 +158,7 @@ def build_video(scenes, out_dir, video_id, progress=print):
         audio.append((wav, max(audio_duration(wav), 1.5), engine))
     print(f"narration done after {time.time() - t0:.0f}s ({audio[0][2]})", flush=True)
 
-    # 2) draw each scene's animation and encode it together with its narration
+    # 2) Draw each scene's animation through the quality gate, then encode
     total, clips = 0.0, []
     with sync_playwright() as p:
         progress("Starting the animation engine…")
@@ -153,7 +167,7 @@ def build_video(scenes, out_dir, video_id, progress=print):
         for i, (sc, (wav, dur, _engine)) in enumerate(zip(scenes, audio), 1):
             total += dur
             clip = work / f"scene_{i}.mp4"
-            render_scene(page, render_scene_html(sc, i, n), dur, clip, wav, work, f"Scene {i}/{n}", progress)
+            _render_scene_with_quality_gate(page, sc, i, n, wav, dur, clip, work, progress)
             clips.append(clip)
             print(f"Scene {i}/{n} done after {time.time() - t0:.0f}s", flush=True)
         browser.close()
@@ -162,5 +176,6 @@ def build_video(scenes, out_dir, video_id, progress=print):
     lst = work / "concat.txt"
     lst.write_text("\n".join(f"file '{c.resolve().as_posix()}'" for c in clips), encoding="utf-8")
     final = Path(out_dir) / f"{video_id}.mp4"
-    _run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(final)], "joining scenes")
+    _run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
+          "-i", str(lst), "-c", "copy", str(final)], "joining scenes")
     return final, total

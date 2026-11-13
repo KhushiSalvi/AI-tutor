@@ -14,8 +14,12 @@ import os
 
 import requests
 
-TAVILY_KEY = os.environ.get("TAVILY_API_KEY", "")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+
+def _tavily_key():
+    """Read lazily so .env loaded after import still works."""
+    return os.environ.get("TAVILY_API_KEY", "")
 
 GROUNDED_SYSTEM = (
     "You are a friendly tutor for an engineering student. The question is outside the student's "
@@ -59,29 +63,22 @@ def grounded_answer(query, timeout=30):
         resp = getattr(e, "response", None)
         print("[web] Google Search call failed:", repr(e)[:200], (resp.text[:300] if resp is not None else ""), flush=True)
         return None
-TAVILY_URL = "https://api.tavily.com/search"
-
-
 def web_search(query, k=4):
-    if not TAVILY_KEY:
+    key = _tavily_key()
+    if not key:
         return []
     try:
-        r = requests.post(
-            TAVILY_URL,
-            json={
-                "api_key": TAVILY_KEY,
-                "query": f"{query} electrical engineering",
-                "max_results": k,
-                "search_depth": "basic",
-            },
-            timeout=8,
-        )
-        r.raise_for_status()
-        results = r.json().get("results", [])
+        from tavily import TavilyClient
+        client = TavilyClient(api_key=key)
+        results = client.search(
+            f"{query} electrical engineering",
+            max_results=k,
+            search_depth="basic",
+        ).get("results", [])
         return [
             {"title": x.get("title", "")[:120], "url": x.get("url", ""), "snippet": (x.get("content") or "")[:600]}
             for x in results
             if x.get("url")
         ][:k]
     except Exception:
-        return []  # network/quota errors degrade to "not covered", never crash the chat
+        return []  # network/quota errors degrade gracefully, never crash the chat

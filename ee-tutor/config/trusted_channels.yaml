@@ -1,0 +1,20 @@
+# Trusted educational YouTube channels for electrical, electronics, and computer architecture
+channels:
+  - name: "NPTEL-NOC IITM"
+    id: "UCwNjyff_5zFkQfQp2fLgZqg"
+    topics: ["circuits", "signals", "control", "analog_cmos"]
+  - name: "Ben Eater"
+    id: "UCS0N5baNl5WJgkG0n5r5vNw"
+    topics: ["computer_architecture", "digital_logic", "microprocessors"]
+  - name: "Razavi Electronics"
+    id: "UC78L8_E_rN9V6vEwM7m4sUA"
+    topics: ["analog_cmos", "mosfet", "amplifiers"]
+  - name: "Brian Douglas"
+    id: "UCq0imsn84ShAe9PBOFnoIrg"
+    topics: ["control_systems", "state_space", "bode_plots"]
+  - name: "All About Circuits"
+    id: "UCqLhP_p1sA1N4h6k7lM8nOQ"
+    topics: ["circuits", "thevenin", "rc_transient", "diodes"]
+  - name: "3Blue1Brown"
+    id: "UCYO_jab_esuFRV4b17AJtAw"
+    topics: ["linear_algebra", "fourier_transform", "calculus"]

@@ -1,0 +1,21 @@
+# Coverage check configuration
+# Cross-encoder (ms-marco-MiniLM-L-6-v2) returns raw logit scores
+# Typical range: -10 to +10; 0.0+ is already a decent match, 2.0+ is strong
+# These thresholds are calibrated for the ms-marco cross-encoder score range.
+
+# Reranker score thresholds (cross-encoder logit scores, NOT 0-1 probabilities)
+reranker_covered_min: 0.0      # was 0.35 — anything >= 0.0 logit = relevant
+reranker_partial_min: -3.0     # was 0.15 — anything >= -3.0 is weakly related
+
+# Minimum number of high-quality chunks required
+min_chunks_covered: 1          # was 2 — even 1 strong chunk is enough for video
+min_chunks_partial: 1
+
+# LLM relevance check: adds ~1s latency but catches edge cases
+# Enable for more accurate coverage — especially important for video routing
+use_llm_relevance_check: true
+
+# Disambiguation preferences
+# Video: when borderline, prefer to generate (agent will fall back if content thin)
+video_ambiguous_preference: "COVERED"   # was NOT_COVERED — this was the main bug!
+text_ambiguous_preference: "PARTIAL"

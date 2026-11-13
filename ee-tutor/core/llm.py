@@ -1,4 +1,13 @@
-﻿import os
+import os
+import json
+import re
+
+
+def parse_json(text):
+    text = re.sub(r"^```(?:json)?\s*", "", str(text).strip())
+    text = re.sub(r"\s*```$", "", text)
+    return json.loads(text)
+
 
 PROVIDER = os.environ.get("LLM_PROVIDER", "gemini")  # "gemini" or "ollama"
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-lite")

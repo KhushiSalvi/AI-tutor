@@ -1,0 +1,136 @@
+{
+  "_meta": {
+    "date": "2026-11-12",
+    "count": 4
+  },
+  "queries": {
+    "explain me kcl": {
+      "ts": 1794478036.9119596,
+      "videos": [
+        {
+          "id": "g4HwMC0qU4g",
+          "title": "KCL in just 10 min with best and easy way (Nodal Analysis)",
+          "channel": "Zarrar Khan",
+          "duration": 562,
+          "thumbnail": "https://i.ytimg.com/vi/g4HwMC0qU4g/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/g4HwMC0qU4g",
+          "source": "youtube_api"
+        },
+        {
+          "id": "fPyZH1Hg4mU",
+          "title": "Kirchhoff's Current Law (KCL)",
+          "channel": "Neso Academy",
+          "duration": 431,
+          "thumbnail": "https://i.ytimg.com/vi/fPyZH1Hg4mU/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/fPyZH1Hg4mU",
+          "source": "youtube_api"
+        },
+        {
+          "id": "TaqJ4OYqv3A",
+          "title": "Kirchhoffs Current Law (KCL) First law (Unit 1 DC circuits) BEE | in हिन्दी",
+          "channel": "Gautam Varde",
+          "duration": 611,
+          "thumbnail": "https://i.ytimg.com/vi/TaqJ4OYqv3A/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/TaqJ4OYqv3A",
+          "source": "youtube_api"
+        }
+      ]
+    },
+    "explain me mosfet": {
+      "ts": 1794478106.1447816,
+      "videos": [
+        {
+          "id": "AwRJsze_9m4",
+          "title": "MOSFET Explained - How MOSFET Works",
+          "channel": "The Engineering Mindset",
+          "duration": 1214,
+          "thumbnail": "https://i.ytimg.com/vi/AwRJsze_9m4/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/AwRJsze_9m4",
+          "source": "youtube_api"
+        },
+        {
+          "id": "p34w6ISouZY",
+          "title": "MOSFET Transistor Basics & Working Principle | Electrical4U",
+          "channel": "Electrical4U",
+          "duration": 430,
+          "thumbnail": "https://i.ytimg.com/vi/p34w6ISouZY/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/p34w6ISouZY",
+          "source": "youtube_api"
+        },
+        {
+          "id": "q5R0cYYXvGo",
+          "title": "MOSFET in Hindi. Working, Uses, Structure and Connection @LearnEEE",
+          "channel": "Learn EEE",
+          "duration": 680,
+          "thumbnail": "https://i.ytimg.com/vi/q5R0cYYXvGo/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/q5R0cYYXvGo",
+          "source": "youtube_api"
+        }
+      ]
+    },
+    "explain mosfet": {
+      "ts": 1794491474.1830902,
+      "videos": [
+        {
+          "id": "lyfx8CL7AkI",
+          "title": "This CHIP Changed the WORLD! MOSFET (ElectroBOOM101 - 012)",
+          "channel": "ElectroBOOM",
+          "duration": 738,
+          "thumbnail": "https://i.ytimg.com/vi/lyfx8CL7AkI/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/lyfx8CL7AkI",
+          "source": "youtube_api"
+        },
+        {
+          "id": "AwRJsze_9m4",
+          "title": "MOSFET Explained - How MOSFET Works",
+          "channel": "The Engineering Mindset",
+          "duration": 1214,
+          "thumbnail": "https://i.ytimg.com/vi/AwRJsze_9m4/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/AwRJsze_9m4",
+          "source": "youtube_api"
+        },
+        {
+          "id": "p34w6ISouZY",
+          "title": "MOSFET Transistor Basics & Working Principle | Electrical4U",
+          "channel": "Electrical4U",
+          "duration": 430,
+          "thumbnail": "https://i.ytimg.com/vi/p34w6ISouZY/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/p34w6ISouZY",
+          "source": "youtube_api"
+        }
+      ]
+    },
+    "explain differential amplifier": {
+      "ts": 1794491562.9162645,
+      "videos": [
+        {
+          "id": "yXJADXuWtlI",
+          "title": "BJT:  Differential Amplifier Explained",
+          "channel": "ALL ABOUT ELECTRONICS",
+          "duration": 1037,
+          "thumbnail": "https://i.ytimg.com/vi/yXJADXuWtlI/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/yXJADXuWtlI",
+          "source": "youtube_api"
+        },
+        {
+          "id": "IYR-FxjAym0",
+          "title": "MOSFET - Differential Amplifier Explained",
+          "channel": "ALL ABOUT ELECTRONICS",
+          "duration": 1357,
+          "thumbnail": "https://i.ytimg.com/vi/IYR-FxjAym0/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/IYR-FxjAym0",
+          "source": "youtube_api"
+        },
+        {
+          "id": "T5rq69oisJs",
+          "title": "Lec 2 Differential Amplifier Transistor Configuration | LICA | R K Classes | Hindi+Eng |",
+          "channel": "R K Classes",
+          "duration": 521,
+          "thumbnail": "https://i.ytimg.com/vi/T5rq69oisJs/hqdefault.jpg",
+          "embed_url": "https://www.youtube-nocookie.com/embed/T5rq69oisJs",
+          "source": "youtube_api"
+        }
+      ]
+    }
+  }
+}

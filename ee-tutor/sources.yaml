@@ -50,3 +50,10 @@
   topics:
   - general
   tier: local
+- id: alexender_and_sadiku_ckt_theory
+  type: pdf
+  path: data/raw/alexender_and_sadiku_ckt_theory.pdf
+  license: personal copy, local use only (VERIFY before any public/shared use)
+  topics:
+  - general
+  tier: local

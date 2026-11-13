@@ -150,3 +150,41 @@ export const BookOpen = (p) => (
     <path d="M12 6.8V20" />
   </Svg>
 );
+
+export const Download = (p) => (
+  <Svg {...p}>
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+    <path d="M7 10l5 5 5-5" />
+    <path d="M12 15V3" />
+  </Svg>
+);
+
+export const ZoomIn = (p) => (
+  <Svg {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M21 21l-4.35-4.35" />
+    <path d="M11 8v6M8 11h6" />
+  </Svg>
+);
+
+export const ZoomOut = (p) => (
+  <Svg {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M21 21l-4.35-4.35" />
+    <path d="M8 11h6" />
+  </Svg>
+);
+
+export const RotateCcw = (p) => (
+  <Svg {...p}>
+    <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" />
+    <path d="M3 3v5h5" />
+  </Svg>
+);
+
+export const Play = ({ size = 20, fill = "currentColor", ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="none" {...p}>
+    <polygon points="5 3 19 12 5 21 5 3" />
+  </svg>
+);
+

@@ -1,4 +1,4 @@
-"""FastAPI backend for the React UI.  Run from the project root:  uvicorn api:app --port 8000"""
+﻿"""FastAPI backend for the React UI.  Run from the project root:  uvicorn api:app --port 8000"""
 import json
 import threading
 import time
@@ -37,6 +37,7 @@ def _load_env(path=Path(__file__).parent / ".env"):
 _load_env()
 
 from core import llm, tutor
+from core.video import render_queue
 
 CHATS_FILE = Path("data/chats.json")
 MAX_CHATS = 30
@@ -205,8 +206,7 @@ def create_video(body: VideoIn):
     if not text:
         raise HTTPException(400, "Empty topic")
     job_id = uuid.uuid4().hex[:12]
-    thread = threading.Thread(target=tutor.start_video_job, args=(job_id, text, body.level), daemon=True)
-    thread.start()
+    render_queue.enqueue(job_id, tutor.start_video_job, job_id, text, body.level)
     with LOCK:  # save the request + video card into chat history so it survives refresh/restart
         chats = load()
         c = next((x for x in chats if x["id"] == body.chat_id), None)
@@ -230,6 +230,14 @@ def video_status(job_id: str):
     result = dict(status)
     if result["status"] == "done":
         result["url"] = f"/api/video/{job_id}/file"
+    # inject queue position if job is still in the queue
+    pos = render_queue.get_position(job_id)
+    if pos is not None and pos > 1:
+        result["status"] = "queued"
+        result["queue_position"] = pos
+    elif pos == 1:
+        # currently rendering — keep status as-is, just add position=1
+        result["queue_position"] = 1
     return result
 
 

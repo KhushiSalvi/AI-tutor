@@ -89,11 +89,17 @@ def main():
               f"{sum(len(v) for v in to_process.values())} chunks.")
 
     model = SentenceTransformer(MODEL)
+    indexed_successfully = set()
     for sid, chunks in to_process.items():
+        if not chunks:
+            print(f"Warning: {sid} produced 0 chunks. Skipping state recording.")
+            continue
         print(f"Embedding {sid} ({len(chunks)} chunks)...")
         embed_and_add(col, model, chunks)
+        indexed_successfully.add(sid)
 
-    state = set(by_source) if full_rebuild else (load_state() | set(to_process))
+    valid_sources = {sid for sid, ch in by_source.items() if ch}
+    state = valid_sources if full_rebuild else (load_state() | indexed_successfully)
     save_state(state)
     print("Done.")
 
